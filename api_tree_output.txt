@@ -1,0 +1,97 @@
+app/api//
+└── v1/
+    ├── analytics/
+    │   └── event/
+    │       └── route.ts
+    ├── auth/
+    │   ├── change-password/
+    │   │   └── route.ts
+    │   ├── forgot-password/
+    │   │   └── route.ts
+    │   ├── me/
+    │   │   └── route.ts
+    │   ├── refresh/
+    │   │   └── route.ts
+    │   ├── resend-verification/
+    │   │   └── route.ts
+    │   ├── reset-password/
+    │   │   └── route.ts
+    │   ├── signin/
+    │   │   └── route.ts
+    │   ├── signout/
+    │   │   └── route.ts
+    │   ├── signup/
+    │   │   └── route.ts
+    │   └── verify-email/
+    │       └── route.ts
+    ├── businesses/
+    │   ├── [id]/
+    │   │   ├── analytics/
+    │   │   │   ├── items/
+    │   │   │   │   └── route.ts
+    │   │   │   ├── scans/
+    │   │   │   │   └── route.ts
+    │   │   │   └── route.ts
+    │   │   ├── categories/
+    │   │   │   └── route.ts
+    │   │   ├── menus/
+    │   │   │   └── route.ts
+    │   │   ├── qr/
+    │   │   │   ├── [qrId]/
+    │   │   │   │   └── route.ts
+    │   │   │   ├── generate/
+    │   │   │   │   └── route.ts
+    │   │   │   └── route.ts
+    │   │   ├── subscription-status/
+    │   │   │   └── route.ts
+    │   │   ├── subscriptions/
+    │   │   │   └── route.ts
+    │   │   └── route.ts
+    │   └── route.ts
+    ├── categories/
+    │   └── [id]/
+    │       └── route.ts
+    ├── items/
+    │   └── [id]/
+    │       └── route.ts
+    ├── menus/
+    │   └── [id]/
+    │       ├── items/
+    │       │   └── route.ts
+    │       └── route.ts
+    ├── public/
+    │   └── [businessSlug]/
+    │       ├── [menuSlug]/
+    │       │   └── route.ts
+    │       └── route.ts
+    ├── qr/
+    │   └── [id]/
+    │       ├── analytics/
+    │       │   └── route.ts
+    │       ├── download/
+    │       │   └── route.ts
+    │       └── track/
+    │           └── route.ts
+    ├── subscription-plans/
+    │   └── route.ts
+    ├── subscriptions/
+    │   ├── [id]/
+    │   │   ├── cancel/
+    │   │   │   └── route.ts
+    │   │   ├── upgrade/
+    │   │   │   └── route.ts
+    │   │   └── route.ts
+    │   └── checkout/
+    │       └── route.ts
+    ├── upload/
+    │   ├── [path]/
+    │   │   └── route.ts
+    │   └── image/
+    │       └── route.ts
+    └── webhooks/
+        ├── paystack/
+        │   └── route.ts
+        └── stripe/
+            └── route.ts
+
+54 directories, 41 files
