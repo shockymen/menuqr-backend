@@ -66,7 +66,7 @@ export async function PATCH(
     // Get menu to verify ownership
     const { data: menu, error: menuError } = await supabase
       .from('menus')
-      .select('business_id, businesses(user_id)')
+      .select('business_id, businesses!inner(user_id)')
       .eq('id', params.id)
       .single()
 
@@ -74,13 +74,14 @@ export async function PATCH(
       return NextResponse.json({ error: 'Menu not found' }, { status: 404 })
     }
 
-    // Verify ownership
-    if (menu.businesses.user_id !== user.id) {
+    // Verify ownership - FIX: businesses is an array
+    const menuData = menu as { businesses: Array<{ user_id: string }> }
+    if (menuData.businesses[0].user_id !== user.id) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
     // Build update object
-    const updates: any = {
+    const updates: Record<string, string | boolean | undefined> = {
       updated_at: new Date().toISOString()
     }
 
@@ -140,7 +141,7 @@ export async function DELETE(
     // Get menu to verify ownership
     const { data: menu, error: menuError } = await supabase
       .from('menus')
-      .select('business_id, businesses(user_id)')
+      .select('business_id, businesses!inner(user_id)')
       .eq('id', params.id)
       .single()
 
@@ -148,8 +149,9 @@ export async function DELETE(
       return NextResponse.json({ error: 'Menu not found' }, { status: 404 })
     }
 
-    // Verify ownership
-    if (menu.businesses.user_id !== user.id) {
+    // Verify ownership - FIX: businesses is an array
+    const menuData = menu as { businesses: Array<{ user_id: string }> }
+    if (menuData.businesses[0].user_id !== user.id) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
