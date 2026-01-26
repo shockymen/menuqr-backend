@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { generateQRCode } from '@/lib/qr-generator'
 
 // GET - List all QR codes for a business
 export async function GET(
@@ -172,7 +173,44 @@ export async function POST(
       )
     }
 
-    // 6. Create QR code record
+    // 6. Generate QR code image
+    const qrBuffer = await generateQRCode({
+      url: targetUrl,
+      size: size,
+      errorCorrectionLevel: 'M'
+    })
+
+    // 7. Upload to Supabase Storage
+    const timestamp = Date.now()
+    const fileName = `${businessId}/${timestamp}.${format}`
+    const storagePath = `qr-codes/${fileName}`
+
+    const { data: uploadData, error: uploadError } = await supabaseAdmin
+      .storage
+      .from('qr-codes') // Make sure this bucket exists in Supabase
+      .upload(storagePath, qrBuffer, {
+        contentType: `image/${format}`,
+        cacheControl: '31536000', // 1 year
+        upsert: false
+      })
+
+    if (uploadError) {
+      console.error('QR upload error:', uploadError)
+      return NextResponse.json(
+        { error: 'Failed to upload QR code', details: uploadError.message },
+        { status: 500 }
+      )
+    }
+
+    // 8. Get public URL for the uploaded QR code
+    const { data: publicUrlData } = supabaseAdmin
+      .storage
+      .from('qr-codes')
+      .getPublicUrl(storagePath)
+
+    const qrCodeUrl = publicUrlData.publicUrl
+
+    // 9. Create QR code record
     const { data: qrCode, error: createError } = await supabaseAdmin
       .from('qr_codes')
       .insert({
@@ -180,7 +218,7 @@ export async function POST(
         menu_id: menu_id || null,
         name: name || `QR Code - ${business.name}`,
         target_url: targetUrl,
-        qr_code_url: `https://storage.menuqr.africa/qr/${businessId}/${Date.now()}.${format}`,
+        qr_code_url: qrCodeUrl, // Real Supabase Storage URL
         format: format,
         size: size,
         display_text: display_text || 'Scan to view menu',
@@ -193,6 +231,10 @@ export async function POST(
 
     if (createError) {
       console.error('Create QR error:', createError)
+      
+      // Cleanup: Delete uploaded file if DB insert fails
+      await supabaseAdmin.storage.from('qr-codes').remove([storagePath])
+      
       return NextResponse.json(
         { error: 'Failed to create QR code', details: createError.message },
         { status: 500 }
