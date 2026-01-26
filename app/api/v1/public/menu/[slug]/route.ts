@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 
 // GET - Public menu by slug (no auth required - for QR scans)
+// Slug can be either menu slug OR business slug (backwards compatible)
 export async function GET(
   request: NextRequest,
   context: { params: Promise<{ slug: string }> }
@@ -16,47 +17,99 @@ export async function GET(
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
     )
 
-    // 1. Get business by slug
-    const { data: business, error: businessError } = await supabase
-      .from('businesses')
-      .select('id, name, display_name, slug, description, logo_url, city, country, phone, address')
+    // Try to get menu by slug first
+    const { data: menu, error: menuError } = await supabase
+      .from('menus')
+      .select('id, business_id, name, slug, description')
       .eq('slug', slug)
       .eq('is_active', true)
       .is('deleted_at', null)
       .single()
 
-    if (businessError || !business) {
-      return NextResponse.json(
-        { error: 'Menu not found' },
-        { status: 404 }
-      )
+    let business
+    let menuId
+
+    if (menu) {
+      // Menu slug found - use this specific menu
+      menuId = menu.id
+      
+      // Get business details
+      const { data: businessData, error: businessError } = await supabase
+        .from('businesses')
+        .select('id, name, display_name, slug, description, logo_url, city, country, phone, address')
+        .eq('id', menu.business_id)
+        .eq('is_active', true)
+        .is('deleted_at', null)
+        .single()
+
+      if (businessError || !businessData) {
+        return NextResponse.json(
+          { error: 'Business not found' },
+          { status: 404 }
+        )
+      }
+      business = businessData
+    } else {
+      // Try business slug (backwards compatibility)
+      const { data: businessData, error: businessError } = await supabase
+        .from('businesses')
+        .select('id, name, display_name, slug, description, logo_url, city, country, phone, address')
+        .eq('slug', slug)
+        .eq('is_active', true)
+        .is('deleted_at', null)
+        .single()
+
+      if (businessError || !businessData) {
+        return NextResponse.json(
+          { error: 'Menu not found' },
+          { status: 404 }
+        )
+      }
+      business = businessData
+
+      // Get first active menu for this business (backwards compatibility)
+      const { data: firstMenu } = await supabase
+        .from('menus')
+        .select('id')
+        .eq('business_id', business.id)
+        .eq('is_active', true)
+        .is('deleted_at', null)
+        .order('display_order', { ascending: true })
+        .limit(1)
+        .single()
+
+      menuId = firstMenu?.id
     }
 
-    // 2. Get template settings
-    const { data: template } = await supabase
-      .from('business_templates')
-      .select('*')
-      .eq('business_id', business.id)
-      .single()
+    // Get template settings (menu-specific or business default)
+    let template
+    if (menuId) {
+      // Try menu-specific template first
+      const { data: menuTemplate } = await supabase
+        .from('business_templates')
+        .select('*')
+        .eq('business_id', business.id)
+        .eq('menu_id', menuId)
+        .single()
 
-    // 3. Get active menus for business
-    const { data: menus, error: menusError } = await supabase
-      .from('menus')
-      .select('*')
-      .eq('business_id', business.id)
-      .eq('is_active', true)
-      .is('deleted_at', null)
-      .order('display_order', { ascending: true })
-
-    if (menusError) {
-      console.error('Menus fetch error:', menusError)
-      return NextResponse.json(
-        { error: 'Failed to fetch menus' },
-        { status: 500 }
-      )
+      if (menuTemplate) {
+        template = menuTemplate
+      }
     }
 
-    // 4. Get categories
+    // Fallback to business default template
+    if (!template) {
+      const { data: businessTemplate } = await supabase
+        .from('business_templates')
+        .select('*')
+        .eq('business_id', business.id)
+        .is('menu_id', null)
+        .single()
+
+      template = businessTemplate
+    }
+
+    // Get categories for this business
     const { data: categories, error: categoriesError } = await supabase
       .from('categories')
       .select('*')
@@ -69,15 +122,13 @@ export async function GET(
       console.error('Categories fetch error:', categoriesError)
     }
 
-    // 5. Get menu items (only available ones)
-    const menuIds = menus?.map(m => m.id) || []
-    
+    // Get menu items for this specific menu (or all menus if no specific menu)
     let items = []
-    if (menuIds.length > 0) {
+    if (menuId) {
       const { data: itemsData, error: itemsError } = await supabase
         .from('menu_items')
         .select('*')
-        .in('menu_id', menuIds)
+        .eq('menu_id', menuId)
         .eq('is_available', true)
         .is('deleted_at', null)
         .order('sort_order', { ascending: true })
@@ -89,7 +140,16 @@ export async function GET(
       }
     }
 
-    // 6. Return complete menu data with template
+    // Get all menus for navigation (optional)
+    const { data: allMenus } = await supabase
+      .from('menus')
+      .select('id, name, slug, description')
+      .eq('business_id', business.id)
+      .eq('is_active', true)
+      .is('deleted_at', null)
+      .order('display_order', { ascending: true })
+
+    // Return complete menu data with template
     return NextResponse.json({
       data: {
         business: {
@@ -110,7 +170,7 @@ export async function GET(
           secondary_color: '#212529',
           accent_color: '#28a745'
         },
-        menus: menus || [],
+        menus: allMenus || [],
         categories: categories || [],
         items: items
       }
