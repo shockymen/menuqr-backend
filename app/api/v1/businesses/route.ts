@@ -2,18 +2,19 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import type { ApiResponse, Business } from '@/types/api'
 
-// Create admin client for internal operations (bypasses RLS)
-// Safe to use for system operations like subscription creation during business setup
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!,
-  {
-    auth: {
-      persistSession: false,
-      autoRefreshToken: false
+// Helper function to create admin client (runs at request time, not build time)
+function createAdminClient() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    {
+      auth: {
+        persistSession: false,
+        autoRefreshToken: false
+      }
     }
-  }
-)
+  )
+}
 
 export async function GET(request: NextRequest) {
   try {
@@ -328,8 +329,10 @@ export async function POST(request: NextRequest) {
 
     // ========================================
     // STEP 5: Create Trial Subscription (REQUIRED!)
-    // Using admin client to bypass RLS
+    // Create admin client at request time
     // ========================================
+    const supabaseAdmin = createAdminClient()
+    
     const trialEndDate = new Date()
     trialEndDate.setDate(trialEndDate.getDate() + (starterPlan.trial_days || 14))
 
