@@ -1,0 +1,214 @@
+.menuPage {
+  min-height: 100vh;
+  background: #f8f9fa;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+.header {
+  background: white;
+  padding: 2rem 1rem;
+  text-align: center;
+  border-bottom: 1px solid #e9ecef;
+  margin-bottom: 2rem;
+}
+
+.logo {
+  margin-bottom: 1rem;
+}
+
+.logoImage {
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.businessName {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #212529;
+  margin: 0.5rem 0;
+}
+
+.businessDescription {
+  font-size: 1.1rem;
+  color: #6c757d;
+  max-width: 600px;
+  margin: 0.5rem auto;
+}
+
+.businessInfo {
+  margin-top: 1rem;
+  font-size: 0.95rem;
+  color: #495057;
+}
+
+.businessInfo p {
+  margin: 0.25rem 0;
+}
+
+.businessInfo a {
+  color: #0066cc;
+  text-decoration: none;
+}
+
+.featuredSection,
+.categorySection {
+  max-width: 1200px;
+  margin: 0 auto 3rem;
+  padding: 0 1rem;
+}
+
+.sectionTitle,
+.categoryTitle {
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: #212529;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 3px solid #ffc107;
+}
+
+.categoryDescription {
+  color: #6c757d;
+  margin-bottom: 1.5rem;
+}
+
+.itemsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.itemsList {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.menuItem {
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.menuItem:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.menuItem.featured {
+  border: 2px solid #ffc107;
+}
+
+.itemImage {
+  width: 100%;
+  height: 200px;
+  overflow: hidden;
+  background: #e9ecef;
+}
+
+.itemImage img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.itemsList .menuItem {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.itemImageSmall {
+  width: 80px;
+  height: 80px;
+  flex-shrink: 0;
+  overflow: hidden;
+  background: #e9ecef;
+}
+
+.itemImageSmall img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.itemContent {
+  padding: 1rem;
+  flex: 1;
+}
+
+.itemHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.itemName {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #212529;
+  margin: 0;
+  flex: 1;
+}
+
+.itemPrice {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #28a745;
+  white-space: nowrap;
+}
+
+.itemDescription {
+  font-size: 0.95rem;
+  color: #6c757d;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.footer {
+  background: white;
+  padding: 2rem 1rem;
+  text-align: center;
+  border-top: 1px solid #e9ecef;
+  margin-top: 3rem;
+  color: #6c757d;
+  font-size: 0.9rem;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .businessName {
+    font-size: 1.5rem;
+  }
+
+  .itemsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .itemsList .menuItem {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .itemImageSmall {
+    width: 100%;
+    height: 150px;
+  }
+
+  .itemHeader {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .itemName {
+    font-size: 1.1rem;
+  }
+
+  .itemPrice {
+    font-size: 1.1rem;
+  }
+}
