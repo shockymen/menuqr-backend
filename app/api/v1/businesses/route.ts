@@ -115,7 +115,7 @@ export async function POST(request: NextRequest) {
 
     // Parse request body
     const body = await request.json()
-    const { name, email, phone, address, logo_url } = body
+    const { name, email, phone, address, logo_url, city, country, description } = body
 
     // Validate required fields
     if (!name || !email) {
@@ -126,6 +126,12 @@ export async function POST(request: NextRequest) {
         }
       }, { status: 400 })
     }
+
+    // Generate slug from business name
+    const slug = name
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '')
 
     // Create authenticated client
     const authenticatedClient = createClient(
@@ -141,11 +147,15 @@ export async function POST(request: NextRequest) {
     const { data: business, error } = await authenticatedClient
       .from('businesses')
       .insert({
-        user_id: user.id, // Explicitly set user_id
+        user_id: user.id,
         name,
+        slug,
         email,
         phone,
         address,
+        city,
+        country,
+        description,
         logo_url
       })
       .select()
