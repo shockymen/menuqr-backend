@@ -18,14 +18,11 @@ export async function GET(request: NextRequest) {
 
     const token = authHeader.replace('Bearer ', '')
     
-    // Create Supabase client with the user's access token
-    // IMPORTANT: Use anon key but authenticate with the JWT
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
     )
 
-    // Set the auth context using the access token
     const { data: { user }, error: authError } = await supabase.auth.getUser(token)
 
     if (authError || !user) {
@@ -37,8 +34,6 @@ export async function GET(request: NextRequest) {
       }, { status: 401 })
     }
 
-    // Now query with an authenticated client
-    // Create a new client that uses this specific session
     const authenticatedClient = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -54,7 +49,6 @@ export async function GET(request: NextRequest) {
       }
     )
 
-    // Query businesses - RLS will filter to only user's businesses
     const { data: businesses, error } = await authenticatedClient
       .from('businesses')
       .select('*')
@@ -89,7 +83,6 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    // Get and verify auth token (same as GET)
     const authHeader = request.headers.get('authorization')
     
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -113,9 +106,19 @@ export async function POST(request: NextRequest) {
       }, { status: 401 })
     }
 
-    // Parse request body
+    // Parse request body - NOW WITH LOCATION!
     const body = await request.json()
-    const { name, email, phone, address, logo_url, city, country, description } = body
+    const { 
+      name, 
+      location,  // NEW FIELD
+      email, 
+      phone, 
+      address, 
+      logo_url, 
+      city, 
+      country, 
+      description 
+    } = body
 
     // Validate required fields
     if (!name || !email) {
@@ -127,11 +130,20 @@ export async function POST(request: NextRequest) {
       }, { status: 400 })
     }
 
-    // Generate slug from business name
-    const slug = name
+    // Generate display_name
+    const displayName = location ? `${name} - ${location}` : name
+
+    // Generate slug from name + location + city (all that's available)
+    const slugParts = [name, location, city].filter(Boolean)
+    const baseSlug = slugParts
+      .join('-')
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/^-+|-+$/g, '')
+
+    // Add timestamp to ensure uniqueness (even for same name+location+city)
+    const timestamp = Date.now().toString(36).slice(-6)
+    const slug = `${baseSlug}-${timestamp}`
 
     // Create authenticated client
     const authenticatedClient = createClient(
@@ -143,12 +155,14 @@ export async function POST(request: NextRequest) {
       }
     )
 
-    // Insert business (RLS ensures user_id is set automatically)
+    // Insert business with new fields
     const { data: business, error } = await authenticatedClient
       .from('businesses')
       .insert({
         user_id: user.id,
         name,
+        location,      // NEW
+        display_name: displayName,  // NEW
         slug,
         email,
         phone,
@@ -179,7 +193,6 @@ export async function POST(request: NextRequest) {
 
     if (menuError) {
       console.error('Failed to create default menu:', menuError)
-      // Don't fail the whole request, just log it
     }
 
     // Optional: Create trial subscription
@@ -189,17 +202,16 @@ export async function POST(request: NextRequest) {
         business_id: business.id,
         plan: 'starter',
         status: 'trial',
-        trial_ends_at: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000) // 14 days
+        trial_ends_at: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000)
       })
 
     if (subError) {
       console.error('Failed to create subscription:', subError)
-      // Don't fail the whole request
     }
 
     return NextResponse.json<ApiResponse<Business>>({
       data: business
-    }, { status: 201 }) // 201 Created
+    }, { status: 201 })
 
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error'
