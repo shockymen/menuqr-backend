@@ -82,18 +82,18 @@ export default function MinimalistDark({ business, categories, items, primaryCol
             <div className={styles.featuredGrid}>
               {featuredItems.map(item => (
                 <div key={item.id} className={styles.featuredCard}>
-                  {item.image_url && (
-                    <div className={styles.featuredImage}>
-                      <Image 
-                        src={item.image_url} 
-                        alt={item.name}
-                        width={600}
-                        height={400}
-                        className={styles.image}
-                      />
-                      <div className={styles.imageOverlay}></div>
-                    </div>
-                  )}
+                  { item.image_url && (
+                        <div className={styles.featuredImage}>
+                            <Image 
+                            src={item.image_url} 
+                            alt={item.name}
+                            fill
+                            sizes="(max-width: 768px) 100vw, 1000px"
+                            className={styles.image}
+                            />
+                            <div className={styles.imageOverlay}></div>
+                        </div>
+                    )}
                   <div className={styles.featuredInfo}>
                     <div className={styles.featuredHeader}>
                       <h3 className={styles.featuredName}>{item.name}</h3>
