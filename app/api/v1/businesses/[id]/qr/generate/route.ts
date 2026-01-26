@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
-import { getSupabaseAdmin } from '@/lib/supabase'
 
 // POST - Generate QR code for business
 export async function POST(
@@ -70,8 +69,17 @@ export async function POST(
       targetUrl = `${targetUrl}/${menu_id}`
     }
 
-    // 5. Use admin client for QR operations (bypasses RLS)
-    const supabaseAdmin = getSupabaseAdmin()
+    // 5. Create admin client inline (bypasses RLS)
+    const supabaseAdmin = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!,
+      {
+        auth: {
+          persistSession: false,
+          autoRefreshToken: false
+        }
+      }
+    )
 
     // Check if QR already exists for this target
     const { data: existingQR } = await supabaseAdmin
