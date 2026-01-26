@@ -90,6 +90,7 @@ export default function MinimalistDark({ business, categories, items, primaryCol
                             fill
                             sizes="(max-width: 768px) 100vw, 1000px"
                             className={styles.image}
+                            unoptimized
                             />
                             <div className={styles.imageOverlay}></div>
                         </div>
