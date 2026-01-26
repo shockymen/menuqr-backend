@@ -1,0 +1,672 @@
+{
+  "info": {
+    "name": "MenuQR Africa API - Complete",
+    "description": "Complete API testing collection for MenuQR Africa - 78 production endpoints",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{auth_token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "item": [
+    {
+      "name": "1. Authentication",
+      "item": [
+        {
+          "name": "1.1 POST Signup",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status is 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test(\"Returns user data\", function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json.data.user).to.exist;",
+                  "    pm.expect(json.data.user.email).to.equal(\"kwame@chezafrique.com\");",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"kwame@chezafrique.com\",\n  \"password\": \"SecurePass123!\",\n  \"full_name\": \"Kwame Mensah\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/signup",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "signup"]
+            }
+          }
+        },
+        {
+          "name": "1.2 POST Signin",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Returns access token\", function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json.data.access_token).to.exist;",
+                  "    pm.environment.set(\"auth_token\", json.data.access_token);",
+                  "});",
+                  "",
+                  "pm.test(\"Returns user ID\", function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json.data.user.id).to.exist;",
+                  "    pm.environment.set(\"user_id\", json.data.user.id);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"kwame@chezafrique.com\",\n  \"password\": \"SecurePass123!\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/signin",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "signin"]
+            }
+          }
+        },
+        {
+          "name": "1.3 GET Me",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Returns current user\", function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json.data.email).to.equal(\"kwame@chezafrique.com\");",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/auth/me",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "me"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Business Setup",
+      "item": [
+        {
+          "name": "2.1 POST Create Business",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Business created\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json.data.id).to.exist;",
+                  "    pm.environment.set(\"business_id\", json.data.id);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Chez Afrique Restaurant\",\n  \"email\": \"info@chezafrique.com\",\n  \"phone\": \"+233244123456\",\n  \"address\": \"123 Oxford Street\",\n  \"city\": \"Accra\",\n  \"country\": \"Ghana\",\n  \"description\": \"Authentic West African cuisine in the heart of Accra\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/businesses",
+              "host": ["{{base_url}}"],
+              "path": ["businesses"]
+            }
+          }
+        },
+        {
+          "name": "2.2 GET My Businesses",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Returns businesses\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json.data).to.be.an('array');",
+                  "    pm.expect(json.data.length).to.be.above(0);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/businesses",
+              "host": ["{{base_url}}"],
+              "path": ["businesses"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Menu Management",
+      "item": [
+        {
+          "name": "3.1 POST Create Menu",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Menu created\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "    var json = pm.response.json();",
+                  "    pm.environment.set(\"menu_id\", json.data.id);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Main Menu\",\n  \"description\": \"Our complete selection of authentic dishes\",\n  \"is_active\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/businesses/{{business_id}}/menus",
+              "host": ["{{base_url}}"],
+              "path": ["businesses", "{{business_id}}", "menus"]
+            }
+          }
+        },
+        {
+          "name": "3.2 POST Create Category",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Category created\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "    var json = pm.response.json();",
+                  "    pm.environment.set(\"category_id\", json.data.id);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Main Dishes\",\n  \"description\": \"Our signature main courses\",\n  \"sort_order\": 1\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/businesses/{{business_id}}/categories",
+              "host": ["{{base_url}}"],
+              "path": ["businesses", "{{business_id}}", "categories"]
+            }
+          }
+        },
+        {
+          "name": "3.3 PATCH Activate Menu",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Menu activated\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/menus/{{menu_id}}/activate",
+              "host": ["{{base_url}}"],
+              "path": ["menus", "{{menu_id}}", "activate"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Items - Individual",
+      "item": [
+        {
+          "name": "4.1 POST Create Item",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Item created\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "    var json = pm.response.json();",
+                  "    pm.environment.set(\"item_id\", json.data.id);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Jollof Rice\",\n  \"description\": \"Spicy West African rice cooked in tomato sauce\",\n  \"price\": 45.00,\n  \"category_id\": \"{{category_id}}\",\n  \"is_available\": true,\n  \"is_featured\": true,\n  \"prep_time_minutes\": 20\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/menus/{{menu_id}}/items",
+              "host": ["{{base_url}}"],
+              "path": ["menus", "{{menu_id}}", "items"]
+            }
+          }
+        },
+        {
+          "name": "4.2 PATCH Toggle Availability",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Availability toggled\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"is_available\": false\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/items/{{item_id}}/availability",
+              "host": ["{{base_url}}"],
+              "path": ["items", "{{item_id}}", "availability"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Bulk Operations ⭐",
+      "item": [
+        {
+          "name": "5.1 POST Bulk Create Items (23 items)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "pm.environment.set(\"bulk_create_start\", new Date().getTime());"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"All 23 items created\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json.data.created).to.equal(23);",
+                  "});",
+                  "",
+                  "var startTime = pm.environment.get(\"bulk_create_start\");",
+                  "var endTime = new Date().getTime();",
+                  "var duration = (endTime - startTime) / 1000;",
+                  "",
+                  "pm.test(\"Completed in under 10 seconds\", function () {",
+                  "    pm.expect(duration).to.be.below(10);",
+                  "});",
+                  "",
+                  "console.log(\"⏱️ Bulk create took: \" + duration + \" seconds\");",
+                  "console.log(\"🎯 Target: < 10 seconds\");",
+                  "console.log(\"📊 Time saved: ~\" + Math.round((23 * 90 - duration) / 60) + \" minutes\");"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"menu_id\": \"{{menu_id}}\",\n  \"items\": [\n    {\"name\": \"Grilled Tilapia\", \"description\": \"Fresh tilapia grilled with spicy pepper sauce\", \"price\": 65.00, \"category_id\": \"{{category_id}}\", \"is_available\": true},\n    {\"name\": \"Banku and Okro Soup\", \"description\": \"Traditional fermented corn and cassava with okro soup\", \"price\": 40.00, \"category_id\": \"{{category_id}}\", \"is_available\": true},\n    {\"name\": \"Fufu with Light Soup\", \"description\": \"Pounded cassava with tomato-based light soup\", \"price\": 50.00, \"category_id\": \"{{category_id}}\", \"is_available\": true},\n    {\"name\": \"Waakye\", \"description\": \"Rice and beans cooked with millet leaves\", \"price\": 35.00, \"category_id\": \"{{category_id}}\", \"is_available\": true},\n    {\"name\": \"Kelewele\", \"description\": \"Spicy fried plantain cubes\", \"price\": 20.00, \"category_id\": \"{{category_id}}\", \"is_available\": true, \"is_featured\": true},\n    {\"name\": \"Red Red\", \"description\": \"Black-eyed peas in palm oil with fried plantain\", \"price\": 38.00, \"category_id\": \"{{category_id}}\", \"is_available\": true},\n    {\"name\": \"Chicken Kebabs\", \"description\": \"Grilled chicken skewers\", \"price\": 55.00, \"category_id\": \"{{category_id}}\", \"is_available\": true},\n    {\"name\": \"Groundnut Soup\", \"description\": \"Rich peanut soup with chicken\", \"price\": 45.00, \"category_id\": \"{{category_id}}\", \"is_available\": true},\n    {\"name\": \"Kontomire Stew\", \"description\": \"Cocoyam leaves in palm nut soup\", \"price\": 42.00, \"category_id\": \"{{category_id}}\", \"is_available\": true},\n    {\"name\": \"Fried Yam with Shito\", \"description\": \"Crispy fried yam with spicy sauce\", \"price\": 30.00, \"category_id\": \"{{category_id}}\", \"is_available\": true},\n    {\"name\": \"Sobolo\", \"description\": \"Refreshing hibiscus drink\", \"price\": 15.00, \"category_id\": \"{{category_id}}\", \"is_available\": true},\n    {\"name\": \"Palm Wine\", \"description\": \"Fresh traditional palm wine\", \"price\": 25.00, \"category_id\": \"{{category_id}}\", \"is_available\": true},\n    {\"name\": \"Asaana\", \"description\": \"Fermented corn drink\", \"price\": 12.00, \"category_id\": \"{{category_id}}\", \"is_available\": true},\n    {\"name\": \"Goat Light Soup\", \"description\": \"Spicy goat meat in tomato broth\", \"price\": 70.00, \"category_id\": \"{{category_id}}\", \"is_available\": true},\n    {\"name\": \"Tuo Zaafi\", \"description\": \"Northern Ghana corn meal\", \"price\": 48.00, \"category_id\": \"{{category_id}}\", \"is_available\": true},\n    {\"name\": \"Shrimp Jollof\", \"description\": \"Jollof rice with grilled shrimp\", \"price\": 85.00, \"category_id\": \"{{category_id}}\", \"is_available\": true, \"is_featured\": true},\n    {\"name\": \"Kenkey with Fried Fish\", \"description\": \"Fermented corn dough with fried fish\", \"price\": 52.00, \"category_id\": \"{{category_id}}\", \"is_available\": true},\n    {\"name\": \"Bofrɔt\", \"description\": \"Sweet fried dough balls\", \"price\": 18.00, \"category_id\": \"{{category_id}}\", \"is_available\": true},\n    {\"name\": \"Nkatie Cake\", \"description\": \"Peanut brittle candy\", \"price\": 15.00, \"category_id\": \"{{category_id}}\", \"is_available\": true},\n    {\"name\": \"Chin Chin\", \"description\": \"Crunchy fried dough snack\", \"price\": 20.00, \"category_id\": \"{{category_id}}\", \"is_available\": true},\n    {\"name\": \"Plantain Chips\", \"description\": \"Crispy thinly sliced plantain chips\", \"price\": 22.00, \"category_id\": \"{{category_id}}\", \"is_available\": true},\n    {\"name\": \"Beef Kebabs\", \"description\": \"Grilled beef skewers with suya spice\", \"price\": 60.00, \"category_id\": \"{{category_id}}\", \"is_available\": true},\n    {\"name\": \"Coconut Rice\", \"description\": \"Jasmine rice cooked in coconut milk\", \"price\": 38.00, \"category_id\": \"{{category_id}}\", \"is_available\": true}\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/items/bulk",
+              "host": ["{{base_url}}"],
+              "path": ["items", "bulk"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "6. QR Code Generation",
+      "item": [
+        {
+          "name": "6.1 POST Generate Business QR",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"QR code generated\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "    var json = pm.response.json();",
+                  "    pm.environment.set(\"qr_code_id\", json.data.id);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Main Business QR\",\n  \"size\": 512\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/businesses/{{business_id}}/qr/generate",
+              "host": ["{{base_url}}"],
+              "path": ["businesses", "{{business_id}}", "qr", "generate"]
+            }
+          }
+        },
+        {
+          "name": "6.2 GET Download QR PNG",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/qr/{{qr_code_id}}/download?format=png&size=512",
+              "host": ["{{base_url}}"],
+              "path": ["qr", "{{qr_code_id}}", "download"],
+              "query": [
+                {
+                  "key": "format",
+                  "value": "png"
+                },
+                {
+                  "key": "size",
+                  "value": "512"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "6.3 GET Download QR PDF",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/qr/{{qr_code_id}}/download?format=pdf",
+              "host": ["{{base_url}}"],
+              "path": ["qr", "{{qr_code_id}}", "download"],
+              "query": [
+                {
+                  "key": "format",
+                  "value": "pdf"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "7. Analytics",
+      "item": [
+        {
+          "name": "7.1 GET Peak Hours",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Returns peak hours data\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json.data.peak_hours).to.be.an('array');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/businesses/{{business_id}}/analytics/peak-hours?days=30",
+              "host": ["{{base_url}}"],
+              "path": ["businesses", "{{business_id}}", "analytics", "peak-hours"],
+              "query": [
+                {
+                  "key": "days",
+                  "value": "30"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "7.2 POST Track Menu View (Public)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"View tracked\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"business_id\": \"{{business_id}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/public/analytics/view",
+              "host": ["{{base_url}}"],
+              "path": ["public", "analytics", "view"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "8. Subscription",
+      "item": [
+        {
+          "name": "8.1 GET Subscription Plans",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Returns plans\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json.data).to.be.an('array');",
+                  "    pm.expect(json.data.length).to.be.above(0);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/subscription-plans",
+              "host": ["{{base_url}}"],
+              "path": ["subscription-plans"]
+            }
+          }
+        },
+        {
+          "name": "8.2 GET Business Subscription Status",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Returns subscription status\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/businesses/{{business_id}}/subscription-status",
+              "host": ["{{base_url}}"],
+              "path": ["businesses", "{{business_id}}", "subscription-status"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

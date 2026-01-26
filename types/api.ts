@@ -10,11 +10,100 @@ export interface ApiError {
   details?: unknown
 }
 
-// Business types
+// ============================================================================
+// TEAM SYSTEM TYPES
+// ============================================================================
+
+export interface BusinessRole {
+  id: string
+  business_id: string
+  role_key: string
+  role_name: string
+  role_description?: string
+  permissions: string[]
+  is_custom: boolean
+  can_be_edited: boolean
+  can_be_deleted: boolean
+  created_at: string
+  updated_at: string
+}
+
+export interface TeamMember {
+  id: string
+  business_id: string
+  user_id: string
+  role_id: string
+  status: 'pending' | 'active' | 'inactive'
+  invited_by_user_id?: string
+  invited_at: string
+  invitation_accepted_at?: string
+  removed_at?: string
+  removed_by_user_id?: string
+  removal_reason?: string
+  last_active_at?: string
+  created_at: string
+  updated_at: string
+  
+  // Joined data (when fetching with relations)
+  role?: BusinessRole
+  user?: {
+    id: string
+    email: string
+    user_metadata?: {
+      full_name?: string
+    }
+  }
+  invited_by?: {
+    email: string
+    user_metadata?: {
+      full_name?: string
+    }
+  }
+}
+
+export interface TeamInvitation {
+  id: string
+  business_id: string
+  invited_by_user_id: string
+  invitation_type: 'email' | 'link'
+  email?: string
+  invite_token?: string
+  max_uses: number
+  current_uses: number
+  role_id?: string
+  role_key: string
+  status: 'pending' | 'accepted' | 'expired' | 'cancelled' | 'rejected'
+  expires_at: string
+  accepted_at?: string
+  accepted_by_user_id?: string
+  metadata?: Record<string, unknown>
+  created_at: string
+  updated_at: string
+  
+  // Joined data
+  role?: BusinessRole
+  business?: {
+    name: string
+    display_name?: string
+  }
+  invited_by?: {
+    email: string
+    user_metadata?: {
+      full_name?: string
+    }
+  }
+}
+
+// ============================================================================
+// BUSINESS TYPES (MERGED WITH TEAM INFO)
+// ============================================================================
+
 export interface Business {
   id: string
   user_id: string
   name: string
+  location?: string
+  display_name?: string
   slug: string
   email: string | null
   phone: string | null
@@ -41,9 +130,17 @@ export interface Business {
   created_at: string
   updated_at: string
   deleted_at: string | null
+  
+  // Team info (when fetching with relations)
+  my_role?: BusinessRole
+  my_membership?: TeamMember
+  team_count?: number
 }
 
-// Menu types
+// ============================================================================
+// MENU TYPES
+// ============================================================================
+
 export interface Menu {
   id: string
   business_id: string
@@ -62,7 +159,10 @@ export interface Menu {
   deleted_at: string | null
 }
 
-// Category types
+// ============================================================================
+// CATEGORY TYPES
+// ============================================================================
+
 export interface Category {
   id: string
   business_id: string
@@ -76,15 +176,18 @@ export interface Category {
   deleted_at: string | null
 }
 
-// Menu Item types
+// ============================================================================
+// MENU ITEM TYPES
+// ============================================================================
+
 export interface MenuItem {
   id: string
   menu_id: string
   category_id: string | null
   name: string
   description: string | null
-  ingredients: string | null          // Display text
-  ingredient_list: string[]           // NEW: Queryable array
+  ingredients: string | null
+  ingredient_list: string[]
   preparation_notes: string | null
   subcategory: string | null
   tags: string[]
@@ -115,7 +218,10 @@ export interface MenuItem {
   deleted_at: string | null
 }
 
-// Translation types
+// ============================================================================
+// TRANSLATION TYPES
+// ============================================================================
+
 export interface Translation {
   id: string
   translatable_type: string
@@ -131,7 +237,10 @@ export interface Translation {
   updated_at: string
 }
 
-// QR Code types
+// ============================================================================
+// QR CODE TYPES
+// ============================================================================
+
 export interface QRCode {
   id: string
   menu_id: string
@@ -145,7 +254,10 @@ export interface QRCode {
   created_at: string
 }
 
-// Analytics types
+// ============================================================================
+// ANALYTICS TYPES
+// ============================================================================
+
 export interface MenuView {
   id: string
   business_id: string
@@ -176,6 +288,45 @@ export interface QRScan {
   device_type: string | null
 }
 
+export interface MenuViewCreate {
+  business_id: string
+  menu_id: string
+  user_agent?: string
+  ip_address?: string
+  country?: string
+  device_type?: string
+}
+
+export interface ItemViewCreate {
+  business_id: string
+  item_id: string
+  user_agent?: string
+  ip_address?: string
+}
+
+export interface PeakHoursData {
+  hour: number
+  count: number
+}
+
+export interface PeakHoursResponse {
+  business_id: string
+  date_range: {
+    start: string
+    end: string
+  }
+  peak_hours: PeakHoursData[]
+  total_views: number
+  busiest_hour: {
+    hour: number
+    count: number
+  }
+}
+
+// ============================================================================
+// JOINED TYPES (FOR SUPABASE QUERIES)
+// ============================================================================
+
 export interface MenuWithBusiness extends Menu {
   businesses: Business
 }
@@ -191,6 +342,40 @@ export interface MenuItemWithMenuAndBusiness extends MenuItem {
       user_id: string
     }
   }
+}
+
+export interface MenuItemWithSingleMenu extends MenuItem {
+  menus: {
+    business_id: string
+  }
+}
+
+export interface MenuItemWithMenuArray extends MenuItem {
+  menus: Array<{
+    business_id: string
+  }>
+}
+
+export interface MenuItemOwnershipCheck {
+  id: string
+  menu_id: string
+  menus: Array<{
+    business_id: string
+    businesses: Array<{
+      user_id: string
+    }>
+  }>
+}
+
+export type SupabaseJoinResult<T> = {
+  [K in keyof T]: T[K] extends object
+    ? Array<T[K]>
+    : T[K]
+}
+
+// Helper function to safely access first element from Supabase join arrays
+export function getFirstJoin<T>(arr: T[] | undefined): T | null {
+  return arr && arr.length > 0 ? arr[0] : null
 }
 
 // ============================================================================
@@ -305,80 +490,4 @@ export interface ItemReorderRequest {
     id: string
     sort_order: number
   }>
-}
-
-// ============================================================================
-// ANALYTICS TYPES
-// ============================================================================
-
-export interface MenuViewCreate {
-  business_id: string
-  menu_id: string
-  user_agent?: string
-  ip_address?: string
-  country?: string
-  device_type?: string
-}
-
-export interface ItemViewCreate {
-  business_id: string
-  item_id: string
-  user_agent?: string
-  ip_address?: string
-}
-
-export interface PeakHoursData {
-  hour: number
-  count: number
-}
-
-export interface PeakHoursResponse {
-  business_id: string
-  date_range: {
-    start: string
-    end: string
-  }
-  peak_hours: PeakHoursData[]
-  total_views: number
-  busiest_hour: {
-    hour: number
-    count: number
-  }
-}
-
-// For single menu join
-export interface MenuItemWithSingleMenu extends MenuItem {
-  menus: {
-    business_id: string
-  }
-}
-
-// For array menu join (from !inner)
-export interface MenuItemWithMenuArray extends MenuItem {
-  menus: Array<{
-    business_id: string
-  }>
-}
-
-// For business verification queries
-export interface MenuItemOwnershipCheck {
-  id: string
-  menu_id: string
-  menus: Array<{
-    business_id: string
-    businesses: Array<{
-      user_id: string
-    }>
-  }>
-}
-
-export type SupabaseJoinResult<T> = {
-  [K in keyof T]: T[K] extends object
-    ? Array<T[K]>
-    : T[K]
-}
-
-// Helper function to safely access first element from Supabase join arrays
-export function getFirstJoin<T>(arr: T[] | undefined): T | null {
-  return arr && arr.length > 0 ? arr[0] : null
 }
