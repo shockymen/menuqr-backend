@@ -32,7 +32,14 @@ export async function GET(
       )
     }
 
-    // 2. Get active menus for business
+    // 2. Get template settings
+    const { data: template } = await supabase
+      .from('business_templates')
+      .select('*')
+      .eq('business_id', business.id)
+      .single()
+
+    // 3. Get active menus for business
     const { data: menus, error: menusError } = await supabase
       .from('menus')
       .select('*')
@@ -49,7 +56,7 @@ export async function GET(
       )
     }
 
-    // 3. Get categories
+    // 4. Get categories
     const { data: categories, error: categoriesError } = await supabase
       .from('categories')
       .select('*')
@@ -62,7 +69,7 @@ export async function GET(
       console.error('Categories fetch error:', categoriesError)
     }
 
-    // 4. Get menu items (only available ones)
+    // 5. Get menu items (only available ones)
     const menuIds = menus?.map(m => m.id) || []
     
     let items = []
@@ -82,7 +89,7 @@ export async function GET(
       }
     }
 
-    // 5. Return complete menu data
+    // 6. Return complete menu data with template
     return NextResponse.json({
       data: {
         business: {
@@ -96,6 +103,12 @@ export async function GET(
           country: business.country,
           phone: business.phone,
           address: business.address
+        },
+        template: template || { 
+          template_name: 'modern-minimal',
+          primary_color: '#ffc107',
+          secondary_color: '#212529',
+          accent_color: '#28a745'
         },
         menus: menus || [],
         categories: categories || [],

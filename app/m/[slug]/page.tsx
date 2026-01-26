@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation'
-import Image from 'next/image'
-import styles from './menu.module.css'
+import ModernMinimal from '@/app/m/[slug]/templates/modern-minimal'
+import ClassicElegant from '@/app/m/[slug]/templates/classic-elegant'
 
 interface MenuItem {
   id: string
@@ -39,8 +39,16 @@ interface Business {
   address: string
 }
 
+interface Template {
+  template_name: string
+  primary_color: string
+  secondary_color: string
+  accent_color: string
+}
+
 interface MenuData {
   business: Business
+  template: Template
   menus: Menu[]
   categories: Category[]
   items: MenuItem[]
@@ -77,114 +85,32 @@ export default async function MenuPage({
     notFound()
   }
 
-  const { business, categories, items } = menuData
+  const { business, template, categories, items } = menuData
 
-  const itemsByCategory = categories.map(category => ({
-    category,
-    items: items.filter(item => item.category_id === category.id)
-  })).filter(group => group.items.length > 0)
+  // Conditional rendering based on template name
+  if (template.template_name === 'classic-elegant') {
+    return (
+      <ClassicElegant
+        business={business}
+        categories={categories}
+        items={items}
+        primaryColor={template.primary_color}
+      />
+    )
+  }
 
-  const featuredItems = items.filter(item => item.is_featured)
-
+  // Default to modern-minimal
   return (
-    <div className={styles.menuPage}>
-      <header className={styles.header}>
-        {business.logo_url && (
-          <div className={styles.logo}>
-            <Image 
-              src={business.logo_url} 
-              alt={business.name}
-              width={80}
-              height={80}
-              className={styles.logoImage}
-            />
-          </div>
-        )}
-        <h1 className={styles.businessName}>{business.display_name || business.name}</h1>
-        {business.description && (
-          <p className={styles.businessDescription}>{business.description}</p>
-        )}
-        <div className={styles.businessInfo}>
-          <p>📍 {business.city}, {business.country}</p>
-          {business.phone && (
-            <p>📞 <a href={`tel:${business.phone}`}>{business.phone}</a></p>
-          )}
-          {business.address && <p>{business.address}</p>}
-        </div>
-      </header>
-
-      {featuredItems.length > 0 && (
-        <section className={styles.featuredSection}>
-          <h2 className={styles.sectionTitle}>⭐ Featured</h2>
-          <div className={styles.itemsGrid}>
-            {featuredItems.map(item => (
-              <div key={item.id} className={`${styles.menuItem} ${styles.featured}`}>
-                {item.image_url && (
-                  <div className={styles.itemImage}>
-                    <Image 
-                      src={item.image_url} 
-                      alt={item.name}
-                      width={300}
-                      height={200}
-                    />
-                  </div>
-                )}
-                <div className={styles.itemContent}>
-                  <div className={styles.itemHeader}>
-                    <h3 className={styles.itemName}>{item.name}</h3>
-                    <span className={styles.itemPrice}>GHS {item.price.toFixed(2)}</span>
-                  </div>
-                  {item.description && (
-                    <p className={styles.itemDescription}>{item.description}</p>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
-
-      {itemsByCategory.map(({ category, items }) => (
-        <section key={category.id} className={styles.categorySection}>
-          <h2 className={styles.categoryTitle}>{category.name}</h2>
-          {category.description && (
-            <p className={styles.categoryDescription}>{category.description}</p>
-          )}
-          <div className={styles.itemsList}>
-            {items.map(item => (
-              <div key={item.id} className={styles.menuItem}>
-                {item.image_url && (
-                  <div className={styles.itemImageSmall}>
-                    <Image 
-                      src={item.image_url} 
-                      alt={item.name}
-                      width={80}
-                      height={80}
-                    />
-                  </div>
-                )}
-                <div className={styles.itemContent}>
-                  <div className={styles.itemHeader}>
-                    <h3 className={styles.itemName}>{item.name}</h3>
-                    <span className={styles.itemPrice}>GHS {item.price.toFixed(2)}</span>
-                  </div>
-                  {item.description && (
-                    <p className={styles.itemDescription}>{item.description}</p>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
-      ))}
-
-      <footer className={styles.footer}>
-        <p>Powered by <strong>MenuQR Africa</strong></p>
-      </footer>
-    </div>
+    <ModernMinimal
+      business={business}
+      categories={categories}
+      items={items}
+      primaryColor={template.primary_color}
+    />
   )
 }
 
+// Metadata for SEO
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
   const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://menuqr-backend.vercel.app'
