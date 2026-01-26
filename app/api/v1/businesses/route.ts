@@ -2,6 +2,19 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import type { ApiResponse, Business } from '@/types/api'
 
+// Create admin client for internal operations (bypasses RLS)
+// Safe to use for system operations like subscription creation during business setup
+const supabaseAdmin = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!,
+  {
+    auth: {
+      persistSession: false,
+      autoRefreshToken: false
+    }
+  }
+)
+
 export async function GET(request: NextRequest) {
   try {
     const authHeader = request.headers.get('authorization')
@@ -48,23 +61,16 @@ export async function GET(request: NextRequest) {
       }
     )
 
-    // Get businesses where user is owner OR team member
+    // Get businesses with subscription info
     const { data: businesses, error } = await authenticatedClient
       .from('businesses')
       .select(`
         *,
-        team_members:business_team_members!inner(
-          role_id,
-          status,
-          roles:business_roles(
-            role_key,
-            role_name,
-            permissions
-          )
+        subscription:subscriptions(
+          *,
+          plan:subscription_plans(*)
         )
       `)
-      .eq('business_team_members.user_id', user.id)
-      .eq('business_team_members.status', 'active')
       .order('created_at', { ascending: false })
 
     if (error) {
@@ -195,7 +201,6 @@ export async function POST(request: NextRequest) {
 
     // ========================================
     // STEP 2: Create Default Roles
-    // (Trigger should handle this, but let's be explicit)
     // ========================================
     const defaultRoles = [
       {
@@ -257,7 +262,11 @@ export async function POST(request: NextRequest) {
 
     if (rolesError) {
       console.error('Roles creation error:', rolesError)
-      // Continue anyway - trigger might have created them
+      // Rollback business
+      await authenticatedClient.from('businesses').delete().eq('id', business.id)
+      return NextResponse.json<ApiResponse>({
+        error: { code: 'ROLES_CREATION_FAILED', message: rolesError.message }
+      }, { status: 500 })
     }
 
     // ========================================
@@ -281,12 +290,87 @@ export async function POST(request: NextRequest) {
 
       if (memberError) {
         console.error('Team member creation error:', memberError)
-        // Continue anyway - might already exist from trigger
+        // Rollback
+        await authenticatedClient.from('business_roles').delete().eq('business_id', business.id)
+        await authenticatedClient.from('businesses').delete().eq('id', business.id)
+        return NextResponse.json<ApiResponse>({
+          error: { code: 'TEAM_MEMBER_CREATION_FAILED', message: memberError.message }
+        }, { status: 500 })
       }
     }
 
     // ========================================
-    // STEP 4: Create Default Menu (Optional)
+    // STEP 4: Get Starter Plan
+    // ========================================
+    const { data: starterPlan, error: planError } = await authenticatedClient
+      .from('subscription_plans')
+      .select('*')
+      .eq('slug', 'starter')
+      .eq('is_active', true)
+      .single()
+
+    if (planError || !starterPlan) {
+      console.error('Failed to get starter plan:', planError)
+      
+      // Rollback business creation
+      await authenticatedClient.from('business_team_members').delete().eq('business_id', business.id)
+      await authenticatedClient.from('business_roles').delete().eq('business_id', business.id)
+      await authenticatedClient.from('businesses').delete().eq('id', business.id)
+      
+      return NextResponse.json<ApiResponse>({
+        error: { 
+          code: 'PLAN_NOT_FOUND', 
+          message: 'Starter plan not found. Please contact support.',
+          details: planError?.message
+        }
+      }, { status: 500 })
+    }
+
+    // ========================================
+    // STEP 5: Create Trial Subscription (REQUIRED!)
+    // Using admin client to bypass RLS
+    // ========================================
+    const trialEndDate = new Date()
+    trialEndDate.setDate(trialEndDate.getDate() + (starterPlan.trial_days || 14))
+
+    // Use admin client (bypasses RLS) - safe for internal system operation
+    const { data: subscription, error: subError } = await supabaseAdmin
+      .from('subscriptions')
+      .insert({
+        business_id: business.id,
+        plan_id: starterPlan.id,
+        status: 'trial',
+        trial_ends_at: trialEndDate.toISOString(),
+        trial_days: starterPlan.trial_days,
+        current_period_start: new Date().toISOString(),
+        current_period_end: trialEndDate.toISOString(),
+        started_at: new Date().toISOString(),
+        amount: parseFloat(starterPlan.price),
+        currency: starterPlan.currency,
+        billing_interval: starterPlan.billing_interval
+      })
+      .select()
+      .single()
+
+    if (subError || !subscription) {
+      console.error('CRITICAL: Failed to create subscription!', subError)
+      
+      // CRITICAL: Subscription is required, rollback business creation
+      await authenticatedClient.from('business_team_members').delete().eq('business_id', business.id)
+      await authenticatedClient.from('business_roles').delete().eq('business_id', business.id)
+      await authenticatedClient.from('businesses').delete().eq('id', business.id)
+      
+      return NextResponse.json<ApiResponse>({
+        error: { 
+          code: 'SUBSCRIPTION_REQUIRED', 
+          message: 'Failed to create subscription. Business creation rolled back.',
+          details: subError?.message || 'Subscription returned null'
+        }
+      }, { status: 500 })
+    }
+
+    // ========================================
+    // STEP 6: Create Default Menu (Optional)
     // ========================================
     const { error: menuError } = await authenticatedClient
       .from('menus')
@@ -298,32 +382,21 @@ export async function POST(request: NextRequest) {
 
     if (menuError) {
       console.error('Failed to create default menu:', menuError)
+      // Don't rollback - menu is optional
     }
 
     // ========================================
-    // STEP 5: Create Trial Subscription (Optional)
-    // ========================================
-    const { error: subError } = await authenticatedClient
-      .from('subscriptions')
-      .insert({
-        business_id: business.id,
-        plan: 'starter',
-        status: 'trial',
-        trial_ends_at: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString()
-      })
-
-    if (subError) {
-      console.error('Failed to create subscription:', subError)
-    }
-
-    // ========================================
-    // RETURN: Complete Business with Role Info
+    // RETURN: Complete Business with Role & Subscription Info
     // ========================================
     return NextResponse.json<ApiResponse<Business>>({
       data: {
         ...business,
         my_role: superAdminRole,
-        team_count: 1
+        team_count: 1,
+        subscription: {
+          ...subscription,
+          plan: starterPlan
+        }
       }
     }, { status: 201 })
 
