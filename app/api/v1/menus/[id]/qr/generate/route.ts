@@ -97,7 +97,7 @@ export async function POST(
 
     // Generate menu URL
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://menuqr.africa'
-    const menuUrl = `${baseUrl}/m/${business.slug}/${menu.slug}`
+    const menuUrl = `${baseUrl}/m/${menu.slug}`
 
     // Generate QR code as data URL
     const qrDataUrl = await QRCode.toDataURL(menuUrl, {
