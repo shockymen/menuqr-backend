@@ -1,13 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 
-const createServerClient = () => {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-  )
-}
-
 // GET - List all QR codes for a business
 export async function GET(
   request: NextRequest,
@@ -24,7 +17,17 @@ export async function GET(
     }
 
     const token = authHeader.replace('Bearer ', '')
-    const supabase = createServerClient()
+    
+    // Create authenticated client (inside function, not module level)
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        global: { headers: { Authorization: `Bearer ${token}` } },
+        auth: { persistSession: false }
+      }
+    )
+    
     const { data: { user }, error: authError } = await supabase.auth.getUser(token)
 
     if (authError || !user) {
