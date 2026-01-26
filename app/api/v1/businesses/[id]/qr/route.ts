@@ -183,7 +183,7 @@ export async function POST(
     // 7. Upload to Supabase Storage
     const timestamp = Date.now()
     const fileName = `${businessId}/${timestamp}.${format}`
-    const storagePath = `qr-codes/${fileName}`
+    const storagePath = fileName
 
     const { data: uploadData, error: uploadError } = await supabaseAdmin
       .storage
