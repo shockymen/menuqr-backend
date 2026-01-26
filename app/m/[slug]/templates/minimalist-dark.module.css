@@ -1,0 +1,304 @@
+.container {
+  min-height: 100vh;
+  background: #1a1a1a;
+  color: #e8e8e8;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
+}
+
+.header {
+  background: #0f0f0f;
+  padding: 4rem 2rem;
+  text-align: center;
+  border-bottom: 1px solid #2a2a2a;
+}
+
+.headerContent {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.logoWrapper {
+  margin-bottom: 2rem;
+  display: inline-block;
+}
+
+.logo {
+  border-radius: 4px;
+  object-fit: cover;
+  opacity: 0.9;
+}
+
+.businessName {
+  font-size: 2.5rem;
+  font-weight: 300;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: #ffffff;
+  margin: 0 0 1rem;
+}
+
+.tagline {
+  font-size: 1.125rem;
+  color: #a8a8a8;
+  font-weight: 300;
+  letter-spacing: 0.05em;
+  margin: 0 0 2rem;
+}
+
+.location {
+  font-size: 0.875rem;
+  color: #888;
+  font-weight: 300;
+  letter-spacing: 0.1em;
+}
+
+.location a {
+  color: var(--accent-color);
+  text-decoration: none;
+}
+
+.location a:hover {
+  text-decoration: underline;
+}
+
+.sep {
+  margin: 0 1rem;
+  opacity: 0.5;
+}
+
+.main {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 4rem 2rem;
+}
+
+.featured {
+  margin-bottom: 5rem;
+}
+
+.sectionLabel {
+  font-size: 0.875rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--accent-color);
+  margin-bottom: 2.5rem;
+  font-weight: 400;
+  text-align: center;
+}
+
+.featuredGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 3rem;
+}
+
+.featuredCard {
+  position: relative;
+  background: #0f0f0f;
+  border: 1px solid #2a2a2a;
+  overflow: hidden;
+  transition: border-color 0.3s;
+}
+
+.featuredCard:hover {
+  border-color: var(--accent-color);
+}
+
+.featuredImage {
+  position: relative;
+  width: 100%;
+  height: 400px;
+  overflow: hidden;
+}
+
+.image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(20%) brightness(0.8);
+  transition: transform 0.5s, filter 0.5s;
+}
+
+.featuredCard:hover .image {
+  transform: scale(1.05);
+  filter: grayscale(0%) brightness(0.9);
+}
+
+.imageOverlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 50%;
+  background: linear-gradient(to top, #0f0f0f, transparent);
+}
+
+.featuredInfo {
+  padding: 2rem;
+}
+
+.featuredHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 2rem;
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #2a2a2a;
+}
+
+.featuredName {
+  font-size: 1.75rem;
+  font-weight: 300;
+  letter-spacing: 0.05em;
+  color: #ffffff;
+  margin: 0;
+  flex: 1;
+}
+
+.featuredPrice {
+  font-size: 1.5rem;
+  font-weight: 300;
+  color: var(--accent-color);
+  letter-spacing: 0.1em;
+}
+
+.featuredDesc {
+  font-size: 1rem;
+  color: #a8a8a8;
+  line-height: 1.7;
+  margin: 0;
+  font-weight: 300;
+}
+
+.category {
+  margin-bottom: 4rem;
+}
+
+.categoryHeader {
+  margin-bottom: 3rem;
+}
+
+.categoryDesc {
+  text-align: center;
+  color: #888;
+  font-size: 0.95rem;
+  margin: 1rem 0 0;
+  font-weight: 300;
+}
+
+.itemsGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.item {
+  padding: 2rem 0;
+  border-bottom: 1px solid #2a2a2a;
+  transition: background-color 0.2s;
+}
+
+.item:hover {
+  background-color: rgba(255, 255, 255, 0.02);
+}
+
+.item:last-child {
+  border-bottom: none;
+}
+
+.itemHeader {
+  display: flex;
+  align-items: baseline;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.itemName {
+  font-size: 1.25rem;
+  font-weight: 300;
+  letter-spacing: 0.03em;
+  color: #ffffff;
+  margin: 0;
+  white-space: nowrap;
+}
+
+.spacer {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(to right, #2a2a2a 0%, #2a2a2a 80%, transparent 100%);
+  margin: 0 1rem;
+  position: relative;
+  top: -0.3em;
+}
+
+.itemPrice {
+  font-size: 1.125rem;
+  font-weight: 300;
+  color: var(--accent-color);
+  letter-spacing: 0.1em;
+  white-space: nowrap;
+}
+
+.itemDesc {
+  font-size: 0.9rem;
+  color: #888;
+  line-height: 1.6;
+  margin: 0;
+  font-weight: 300;
+}
+
+.footer {
+  background: #0f0f0f;
+  padding: 3rem 2rem;
+  text-align: center;
+  border-top: 1px solid #2a2a2a;
+  margin-top: 4rem;
+}
+
+.footerLine {
+  width: 60px;
+  height: 1px;
+  background: var(--accent-color);
+  margin: 0 auto 1.5rem;
+}
+
+.footer p {
+  font-size: 0.75rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #666;
+  margin: 0;
+  font-weight: 300;
+}
+
+@media (max-width: 768px) {
+  .businessName {
+    font-size: 1.75rem;
+  }
+
+  .header {
+    padding: 3rem 1.5rem;
+  }
+
+  .main {
+    padding: 3rem 1.5rem;
+  }
+
+  .featuredImage {
+    height: 300px;
+  }
+
+  .itemHeader {
+    flex-wrap: wrap;
+  }
+
+  .spacer {
+    display: none;
+  }
+
+  .itemPrice {
+    width: 100%;
+    margin-top: 0.5rem;
+  }
+}

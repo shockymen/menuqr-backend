@@ -1,6 +1,9 @@
 import { notFound } from 'next/navigation'
 import ModernMinimal from '@/app/m/[slug]/templates/modern-minimal'
 import ClassicElegant from '@/app/m/[slug]/templates/classic-elegant'
+import MinimalistDark from '@/app/m/[slug]/templates/minimalist-dark'
+import RusticOrganic from '@/app/m/[slug]/templates/rustic-organic'
+import VibrantPlayful from '@/app/m/[slug]/templates/vibrant-playful'
 
 interface MenuItem {
   id: string
@@ -96,26 +99,58 @@ export default async function MenuPage({
   }
 
   // Conditional rendering based on template name
-  if (templateSettings.template_name === 'classic-elegant') {
-    return (
-      <ClassicElegant
-        business={business}
-        categories={categories}
-        items={items}
-        primaryColor={templateSettings.primary_color}
-      />
-    )
+  switch (templateSettings.template_name) {
+    case 'classic-elegant':
+      return (
+        <ClassicElegant
+          business={business}
+          categories={categories}
+          items={items}
+          primaryColor={templateSettings.primary_color}
+        />
+      )
+    
+    case 'minimalist-dark':
+      return (
+        <MinimalistDark
+          business={business}
+          categories={categories}
+          items={items}
+          primaryColor={templateSettings.primary_color}
+        />
+      )
+    
+    case 'rustic-organic':
+      return (
+        <RusticOrganic
+          business={business}
+          categories={categories}
+          items={items}
+          primaryColor={templateSettings.primary_color}
+        />
+      )
+    
+    case 'vibrant-playful':
+      return (
+        <VibrantPlayful
+          business={business}
+          categories={categories}
+          items={items}
+          primaryColor={templateSettings.primary_color}
+        />
+      )
+    
+    case 'modern-minimal':
+    default:
+      return (
+        <ModernMinimal
+          business={business}
+          categories={categories}
+          items={items}
+          primaryColor={templateSettings.primary_color}
+        />
+      )
   }
-
-  // Default to modern-minimal
-  return (
-    <ModernMinimal
-      business={business}
-      categories={categories}
-      items={items}
-      primaryColor={templateSettings.primary_color}
-    />
-  )
 }
 
 // Metadata for SEO
