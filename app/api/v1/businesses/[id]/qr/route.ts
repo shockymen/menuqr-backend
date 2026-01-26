@@ -137,12 +137,30 @@ export async function POST(
     } = body
 
     // 4. Generate target URL
-    const slug = business.slug || businessId.slice(0, 8)
     const frontendUrl = process.env.NEXT_PUBLIC_FRONTEND_URL || 'https://menuqr-backend.vercel.app'
-    let targetUrl = `${frontendUrl}/m/${slug}`
+    let targetUrl = ''
     
+    // FIXED: Use menu slug if menu_id provided
     if (menu_id) {
-      targetUrl = `${targetUrl}/${menu_id}`
+      const { data: menu, error: menuError } = await supabase
+        .from('menus')
+        .select('slug')
+        .eq('id', menu_id)
+        .eq('business_id', businessId)
+        .single()
+
+      if (menuError || !menu) {
+        return NextResponse.json(
+          { error: 'Menu not found' },
+          { status: 404 }
+        )
+      }
+
+      targetUrl = `${frontendUrl}/m/${menu.slug}`
+    } else {
+      // No menu specified - use business slug
+      const slug = business.slug || businessId.slice(0, 8)
+      targetUrl = `${frontendUrl}/m/${slug}`
     }
 
     // 5. Create admin client inline (bypasses RLS)
@@ -187,10 +205,10 @@ export async function POST(
 
     const { data: uploadData, error: uploadError } = await supabaseAdmin
       .storage
-      .from('qr-codes') // Make sure this bucket exists in Supabase
+      .from('qr-codes')
       .upload(storagePath, qrBuffer, {
         contentType: `image/${format}`,
-        cacheControl: '31536000', // 1 year
+        cacheControl: '31536000',
         upsert: false
       })
 
@@ -218,7 +236,7 @@ export async function POST(
         menu_id: menu_id || null,
         name: name || `QR Code - ${business.name}`,
         target_url: targetUrl,
-        qr_code_url: qrCodeUrl, // Real Supabase Storage URL
+        qr_code_url: qrCodeUrl,
         format: format,
         size: size,
         display_text: display_text || 'Scan to view menu',
