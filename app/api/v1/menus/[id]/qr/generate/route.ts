@@ -1,4 +1,3 @@
-// app/api/v1/menus/[id]/qr/generate/route.ts
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import QRCode from 'qrcode'
@@ -80,10 +79,14 @@ export async function POST(
     const body = await request.json().catch(() => ({})) as {
       name?: string
       size?: number
+      display_text?: string
+      location?: string
     }
 
     const qrName = body.name || `${menu.name} QR Code`
     const qrSize = body.size || 512
+    const displayText = body.display_text || 'Scan to view menu'
+    const location = body.location || null
 
     // Validate size
     if (qrSize < 128 || qrSize > 2048) {
@@ -95,9 +98,27 @@ export async function POST(
       }, { status: 400 })
     }
 
-    // Generate menu URL
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://menuqr.africa'
+    // Generate menu URL using menu slug directly
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://menuqr-backend.vercel.app'
     const menuUrl = `${baseUrl}/m/${menu.slug}`
+
+    // Check if QR already exists for this menu
+    const { data: existingQR } = await supabase
+      .from('qr_codes')
+      .select('id')
+      .eq('business_id', menu.business_id)
+      .eq('menu_id', params.id)
+      .is('deleted_at', null)
+      .single()
+
+    if (existingQR) {
+      return NextResponse.json<ApiResponse>({
+        error: {
+          code: 'CONFLICT',
+          message: 'QR code already exists for this menu'
+        }
+      }, { status: 409 })
+    }
 
     // Generate QR code as data URL
     const qrDataUrl = await QRCode.toDataURL(menuUrl, {
@@ -115,7 +136,7 @@ export async function POST(
     const buffer = Buffer.from(base64Data, 'base64')
 
     // Upload to Supabase Storage
-    const filename = `${business.slug}-${menu.slug}-${Date.now()}.png`
+    const filename = `${business.id}/${menu.slug}-${Date.now()}.png`
     const { data: uploadData, error: uploadError } = await supabase.storage
       .from('qr-codes')
       .upload(filename, buffer, {
@@ -140,22 +161,31 @@ export async function POST(
       .from('qr-codes')
       .getPublicUrl(filename)
 
-    // Save QR code record to database
+    // Save QR code record to database with correct column names
     const { data: qrCode, error: insertError } = await supabase
       .from('qr_codes')
       .insert({
+        business_id: menu.business_id,
         menu_id: params.id,
         name: qrName,
-        url: menuUrl,
-        image_url: urlData.publicUrl,
+        target_url: menuUrl,
+        qr_code_url: urlData.publicUrl,
         format: 'png',
-        size: qrSize
+        size: qrSize,
+        display_text: displayText,
+        location: location,
+        error_correction_level: 'M',
+        is_active: true
       })
       .select()
       .single()
 
     if (insertError) {
       console.error('QR code insert error:', insertError)
+      
+      // Cleanup: Delete uploaded file if DB insert fails
+      await supabase.storage.from('qr-codes').remove([filename])
+      
       return NextResponse.json<ApiResponse>({
         error: {
           code: 'CREATE_FAILED',
