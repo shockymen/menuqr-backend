@@ -58,8 +58,7 @@ async function getMenuData(slug: string): Promise<MenuData | null> {
   try {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://menuqr-backend.vercel.app'
     const response = await fetch(`${apiUrl}/api/v1/public/menu/${slug}`, {
-      next: { revalidate: 60 } // Cache for 1 minute (for testing)
-      // Change to 3600 (1 hour) after testing
+      cache: 'no-store'
     })
 
     if (!response.ok) {
