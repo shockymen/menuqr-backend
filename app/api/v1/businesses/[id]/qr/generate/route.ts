@@ -59,7 +59,8 @@ export async function POST(
 
     // 4. Generate target URL
     const slug = business.slug || businessId.slice(0, 8)
-    let targetUrl = `https://menuqr.africa/m/${slug}`
+    const frontendUrl = process.env.NEXT_PUBLIC_FRONTEND_URL || 'https://menuqr-backend.vercel.app'
+    let targetUrl = `${frontendUrl}/m/${slug}`
     
     if (menu_id) {
       targetUrl = `${targetUrl}/${menu_id}`
