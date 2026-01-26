@@ -48,7 +48,7 @@ interface Template {
 
 interface MenuData {
   business: Business
-  template: Template
+  template?: Template | null
   menus: Menu[]
   categories: Category[]
   items: MenuItem[]
@@ -87,14 +87,22 @@ export default async function MenuPage({
 
   const { business, template, categories, items } = menuData
 
+  // Default template settings if none exist
+  const templateSettings: Template = template || {
+    template_name: 'modern-minimal',
+    primary_color: '#ffc107',
+    secondary_color: '#212529',
+    accent_color: '#28a745'
+  }
+
   // Conditional rendering based on template name
-  if (template.template_name === 'classic-elegant') {
+  if (templateSettings.template_name === 'classic-elegant') {
     return (
       <ClassicElegant
         business={business}
         categories={categories}
         items={items}
-        primaryColor={template.primary_color}
+        primaryColor={templateSettings.primary_color}
       />
     )
   }
@@ -105,7 +113,7 @@ export default async function MenuPage({
       business={business}
       categories={categories}
       items={items}
-      primaryColor={template.primary_color}
+      primaryColor={templateSettings.primary_color}
     />
   )
 }
