@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { getSupabaseAdmin } from '@/lib/supabase'
 
 // POST - Generate QR code for business
 export async function POST(
@@ -10,7 +11,7 @@ export async function POST(
     const params = await context.params
     const businessId = params.id
     
-    // 1. Authentication
+    // 1. Authentication with user client
     const authHeader = request.headers.get('authorization')
     if (!authHeader?.startsWith('Bearer ')) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -18,7 +19,7 @@ export async function POST(
 
     const token = authHeader.replace('Bearer ', '')
     
-    // Create authenticated client (inside function, not module level)
+    // Create authenticated client for verification
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -69,8 +70,11 @@ export async function POST(
       targetUrl = `${targetUrl}/${menu_id}`
     }
 
-    // 5. Check if QR already exists for this target
-    const { data: existingQR } = await supabase
+    // 5. Use admin client for QR operations (bypasses RLS)
+    const supabaseAdmin = getSupabaseAdmin()
+
+    // Check if QR already exists for this target
+    const { data: existingQR } = await supabaseAdmin
       .from('qr_codes')
       .select('id')
       .eq('business_id', businessId)
@@ -85,8 +89,8 @@ export async function POST(
       )
     }
 
-    // 6. Create QR code record
-    const { data: qrCode, error: createError } = await supabase
+    // 6. Create QR code record using admin client
+    const { data: qrCode, error: createError } = await supabaseAdmin
       .from('qr_codes')
       .insert({
         business_id: businessId,
@@ -107,7 +111,7 @@ export async function POST(
     if (createError) {
       console.error('Create QR error:', createError)
       return NextResponse.json(
-        { error: 'Failed to create QR code' },
+        { error: 'Failed to create QR code', details: createError.message },
         { status: 500 }
       )
     }
