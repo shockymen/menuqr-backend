@@ -1,13 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 
-const createServerClient = () => {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-  )
-}
-
 // DELETE - Delete QR code
 export async function DELETE(
   request: NextRequest,
@@ -23,7 +16,17 @@ export async function DELETE(
     }
 
     const token = authHeader.replace('Bearer ', '')
-    const supabase = createServerClient()
+    
+    // Create authenticated client for verification
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        global: { headers: { Authorization: `Bearer ${token}` } },
+        auth: { persistSession: false }
+      }
+    )
+    
     const { data: { user }, error: authError } = await supabase.auth.getUser(token)
 
     if (authError || !user) {
@@ -58,8 +61,20 @@ export async function DELETE(
       return NextResponse.json({ error: 'QR code not found' }, { status: 404 })
     }
 
-    // 4. Soft delete
-    const { error: deleteError } = await supabase
+    // 4. Create admin client for deletion (bypasses RLS)
+    const supabaseAdmin = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!,
+      {
+        auth: {
+          persistSession: false,
+          autoRefreshToken: false
+        }
+      }
+    )
+
+    // Soft delete using admin client
+    const { error: deleteError } = await supabaseAdmin
       .from('qr_codes')
       .update({ 
         deleted_at: new Date().toISOString(),
