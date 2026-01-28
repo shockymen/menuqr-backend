@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { checkSubscriptionLimit } from '@/lib/subscription-enforcement'
 
 const createServerClient = () => {
   return createClient(
@@ -85,6 +86,16 @@ export async function POST(
 
     if (bizError || !business || business.user_id !== user.id) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
+
+    // Check subscription limits
+    const limitCheck = await checkSubscriptionLimit(menu.business_id, 'items')
+    if (!limitCheck.allowed) {
+      return NextResponse.json({ 
+        error: limitCheck.error!.message,
+        code: limitCheck.error!.code,
+        details: limitCheck.error!.details
+      }, { status: 403 })
     }
 
     // 5. Get current max sort_order

@@ -3,6 +3,7 @@ import { createClient } from '@supabase/supabase-js'
 import { getAuthUser } from '@/lib/auth'
 import { successResponse, errorResponse, unauthorizedResponse, notFoundResponse, forbiddenResponse, validationErrorResponse } from '@/lib/api-helpers'
 import type { Menu } from '@/types/api'
+import { checkSubscriptionLimit } from '@/lib/subscription-enforcement'
 
 // GET /api/v1/businesses/:id/menus - List all menus for a business
 export async function GET(
@@ -109,6 +110,12 @@ export async function POST(
 
     if (business.user_id !== user.id) {
       return forbiddenResponse('You do not have permission to create menus for this business')
+    }
+
+    // Check subscription limits
+    const limitCheck = await checkSubscriptionLimit(businessId, 'menus')
+    if (!limitCheck.allowed) {
+      return errorResponse(limitCheck.error!.code, limitCheck.error!.message, 403, limitCheck.error!.details)
     }
 
     // Generate slug from name

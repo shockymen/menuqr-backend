@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import QRCode from 'qrcode'
+import { checkSubscriptionLimit } from '@/lib/subscription-enforcement' 
 import type { ApiResponse, QRCode as QRCodeType } from '@/types/api'
 
 const createServerClient = () => {
@@ -75,6 +76,14 @@ export async function POST(
       }, { status: 403 })
     }
 
+    // Check subscription limits
+    const limitCheck = await checkSubscriptionLimit(menu.business_id, 'qr_codes')
+    if (!limitCheck.allowed) {
+      return NextResponse.json<ApiResponse>({
+        error: limitCheck.error
+      }, { status: 403 })
+    }
+
     // Parse optional request body
     const body = await request.json().catch(() => ({})) as {
       name?: string
@@ -137,7 +146,7 @@ export async function POST(
 
     // Upload to Supabase Storage
     const filename = `${business.id}/${menu.slug}-${Date.now()}.png`
-    const { data: uploadData, error: uploadError } = await supabase.storage
+    const { error: uploadError } = await supabase.storage
       .from('qr-codes')
       .upload(filename, buffer, {
         contentType: 'image/png',

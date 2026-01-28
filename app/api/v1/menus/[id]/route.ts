@@ -8,180 +8,104 @@ const createServerClient = () => {
   )
 }
 
-// GET - Get single menu by ID
+// TypeScript interfaces
+interface Translation {
+  name: string
+  description: string | null
+}
+
+interface ItemTranslation extends Translation {
+  menu_item_id: string
+}
+
+interface MenuItem {
+  id: string
+  name: string
+  description: string | null
+  price: number
+  is_available: boolean
+  [key: string]: unknown
+} 
+
+// GET /api/v1/menus/[id]?lang=fr
+// Get menu with language-specific translations
+// If lang is provided, returns translated content with fallback to original
 export async function GET(
   request: NextRequest,
   context: { params: Promise<{ id: string }> }
 ) {
   try {
     const params = await context.params
+    const menuId = params.id
+    
+    // Get language from query parameter (e.g., ?lang=fr)
+    const { searchParams } = new URL(request.url)
+    const requestedLang = searchParams.get('lang')?.toLowerCase() || 'en'
+
+    console.log('🔍 Menu:', menuId, 'Lang:', requestedLang)
+
     const supabase = createServerClient()
 
-    const { data: menu, error } = await supabase
+    // 1. Get menu (simple query first)
+    const { data: menu, error: menuError } = await supabase
       .from('menus')
       .select('*')
-      .eq('id', params.id)
-      .eq('is_active', true)
-      .single()
-
-    if (error || !menu) {
-      return NextResponse.json({ error: 'Menu not found' }, { status: 404 })
-    }
-
-    return NextResponse.json({ data: menu })
-  } catch (error) {
-    console.error('Get menu error:', error)
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    )
-  }
-}
-
-// PATCH - Update menu
-export async function PATCH(
-  request: NextRequest,
-  context: { params: Promise<{ id: string }> }
-) {
-  try {
-    const params = await context.params
-    
-    // Authentication
-    const authHeader = request.headers.get('authorization')
-    if (!authHeader?.startsWith('Bearer ')) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
-    const token = authHeader.replace('Bearer ', '')
-    const supabase = createServerClient()
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token)
-
-    if (authError || !user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
-    const body = await request.json()
-    const { name, description, is_active } = body
-
-    // Get menu to verify ownership
-    const { data: menu, error: menuError } = await supabase
-      .from('menus')
-      .select('business_id, businesses!inner(user_id)')
-      .eq('id', params.id)
+      .eq('id', menuId)
       .single()
 
     if (menuError || !menu) {
-      return NextResponse.json({ error: 'Menu not found' }, { status: 404 })
+      return NextResponse.json({
+        error: {
+          code: 'NOT_FOUND',
+          message: 'Menu not found'
+        }
+      }, { status: 404 })
     }
 
-    // Verify ownership - FIX: businesses is an array
-    const menuData = menu as { businesses: Array<{ user_id: string }> }
-    if (menuData.businesses[0].user_id !== user.id) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    // 2. If no specific language requested or lang=en, return original
+    if (requestedLang === 'en') {
+      return NextResponse.json({
+        data: {
+          menu,
+          language: 'en'
+        }
+      }, { status: 200 })
     }
 
-    // Build update object
-    const updates: Record<string, string | boolean | undefined> = {
-      updated_at: new Date().toISOString()
-    }
-
-    if (name !== undefined) updates.name = name
-    if (description !== undefined) updates.description = description
-    if (is_active !== undefined) updates.is_active = is_active
-
-    // Update menu
-    const { data: updatedMenu, error: updateError } = await supabase
-      .from('menus')
-      .update(updates)
-      .eq('id', params.id)
-      .select()
+    // 3. Get menu translation
+    const { data: menuTranslation } = await supabase
+      .from('menu_translations')
+      .select('name, description')
+      .eq('menu_id', menuId)
+      .eq('language_code', requestedLang)
       .single()
 
-    if (updateError) {
-      console.error('Update menu error:', updateError)
-      return NextResponse.json(
-        { error: 'Failed to update menu' },
-        { status: 500 }
-      )
+    console.log('📝 Translation found:', !!menuTranslation)
+
+    // 4. Apply translation (fallback to original if no translation)
+    const translatedMenu = {
+      ...menu,
+      name: menuTranslation?.name || menu.name,
+      description: menuTranslation?.description || menu.description
     }
 
-    return NextResponse.json({ data: updatedMenu })
-
-  } catch (error) {
-    console.error('Update menu error:', error)
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    )
-  }
-}
-
-// DELETE - Soft delete menu
-export async function DELETE(
-  request: NextRequest,
-  context: { params: Promise<{ id: string }> }
-) {
-  try {
-    const params = await context.params
-    
-    // Authentication
-    const authHeader = request.headers.get('authorization')
-    if (!authHeader?.startsWith('Bearer ')) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
-    const token = authHeader.replace('Bearer ', '')
-    const supabase = createServerClient()
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token)
-
-    if (authError || !user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
-    // Get menu to verify ownership
-    const { data: menu, error: menuError } = await supabase
-      .from('menus')
-      .select('business_id, businesses!inner(user_id)')
-      .eq('id', params.id)
-      .single()
-
-    if (menuError || !menu) {
-      return NextResponse.json({ error: 'Menu not found' }, { status: 404 })
-    }
-
-    // Verify ownership - FIX: businesses is an array
-    const menuData = menu as { businesses: Array<{ user_id: string }> }
-    if (menuData.businesses[0].user_id !== user.id) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
-    }
-
-    // Soft delete (set is_active to false and deleted_at)
-    const { error: deleteError } = await supabase
-      .from('menus')
-      .update({
-        is_active: false,
-        deleted_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      })
-      .eq('id', params.id)
-
-    if (deleteError) {
-      console.error('Delete menu error:', deleteError)
-      return NextResponse.json(
-        { error: 'Failed to delete menu' },
-        { status: 500 }
-      )
-    }
-
-    return NextResponse.json({ 
-      message: 'Menu deleted successfully' 
+    return NextResponse.json({
+      data: {
+        menu: translatedMenu,
+        language: requestedLang,
+        translation_found: !!menuTranslation
+      }
     }, { status: 200 })
 
-  } catch (error) {
-    console.error('Delete menu error:', error)
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    )
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+    console.error('💥 Error:', errorMessage)
+    
+    return NextResponse.json({
+      error: {
+        code: 'INTERNAL_ERROR',
+        message: errorMessage
+      }
+    }, { status: 500 })
   }
 }

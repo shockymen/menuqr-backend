@@ -1,6 +1,7 @@
 // app/api/v1/items/bulk/route.ts
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { checkSubscriptionLimit } from '@/lib/subscription-enforcement' 
 import type { 
   ApiResponse,
   MenuItem,
@@ -8,8 +9,7 @@ import type {
   BulkUpdateRequest,
   BulkOperationResult,
   BulkOperationError,
-  MenuWithBusiness,
-  MenuItemWithMenuAndBusiness
+  MenuWithBusiness, 
 } from '@/types/api'
 
 const createServerClient = () => {
@@ -102,6 +102,14 @@ export async function POST(request: NextRequest) {
           code: 'FORBIDDEN',
           message: 'You do not have permission to add items to this menu'
         }
+      }, { status: 403 })
+    }
+
+    // Check subscription limits for bulk creation
+    const limitCheck = await checkSubscriptionLimit(menu.business_id, 'items')
+    if (!limitCheck.allowed) {
+      return NextResponse.json<ApiResponse>({
+        error: limitCheck.error
       }, { status: 403 })
     }
 
