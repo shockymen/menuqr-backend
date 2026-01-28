@@ -6,25 +6,6 @@ const createServerClient = () => {
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!
   )
-}
-
-// TypeScript interfaces
-interface Translation {
-  name: string
-  description: string | null
-}
-
-interface ItemTranslation extends Translation {
-  menu_item_id: string
-}
-
-interface MenuItem {
-  id: string
-  name: string
-  description: string | null
-  price: number
-  is_available: boolean
-  [key: string]: unknown
 } 
 
 // GET /api/v1/menus/[id]?lang=fr
