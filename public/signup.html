@@ -252,8 +252,25 @@
         
     </div>
 
+    <!-- Supabase JS Library (Load FIRST) -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
     <!-- Configuration -->
     <script src="config.js"></script>
+    
+    <!-- Auth Utilities -->
+    <script src="auth-utils.js"></script>
+    
+    <!-- Check if already authenticated -->
+    <script>
+        // Redirect if user is already logged in
+        (async function() {
+            if (await window.MenuQRAuth.isAuthenticated()) {
+                // User is logged in, redirect based on their state
+                await window.MenuQRAuth.redirectIfAuthenticated();
+            }
+        })();
+    </script>
     
     <!-- Main Script -->
     <script>
@@ -261,10 +278,7 @@
         // CONFIGURATION
         // ============================================
         
-        // Load from external config file
-        const API_BASE_URL = window.MENUQR_CONFIG.API_BASE_URL;
-        const ENDPOINTS = window.MENUQR_CONFIG.ENDPOINTS;
-        const STORAGE_KEYS = window.MENUQR_CONFIG.STORAGE_KEYS;
+        // Load routes from config (for redirects)
         const ROUTES = window.MENUQR_CONFIG.ROUTES;
         
         // ============================================
@@ -412,25 +426,28 @@
         }
         
         // ============================================
-        // API CALL
+        // API CALL - USING SUPABASE AUTH
         // ============================================
         
-        async function signupUser(email, password) {
-            const response = await fetch(`${API_BASE_URL}${ENDPOINTS.SIGNUP}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ email, password })
-            });
+        async function signupUser(userData) {
+            // Use MenuQRAuth.signup from auth-utils.js
+            const result = await window.MenuQRAuth.signup(
+                userData.email,
+                userData.password,
+                {
+                    full_name: userData.fullName,
+                    business_name: userData.businessName,
+                    business_type: userData.businessType,
+                    phone: userData.phone,
+                    country: userData.country
+                }
+            );
             
-            const data = await response.json();
-            
-            if (!response.ok) {
-                throw new Error(data.error?.message || 'Signup failed');
+            if (!result.success) {
+                throw new Error(result.error || 'Signup failed');
             }
             
-            return data;
+            return result;
         }
         
         // ============================================
@@ -449,26 +466,28 @@
             setLoading(true);
             
             try {
-                // Get form values
-                const email = document.getElementById('email').value;
-                const password = document.getElementById('password').value;
+                // Get ALL form values (all 9 fields)
+                const formData = {
+                    email: document.getElementById('email').value,
+                    password: document.getElementById('password').value,
+                    fullName: document.getElementById('fullName').value,
+                    businessName: document.getElementById('businessName').value,
+                    businessType: document.getElementById('businessType').value,
+                    phone: document.getElementById('phone').value,
+                    country: document.getElementById('country').value
+                };
                 
-                // Call API
-                const result = await signupUser(email, password);
+                // Call Supabase Auth signup
+                const result = await signupUser(formData);
                 
                 console.log('Signup successful:', result);
                 
                 // Show success message
-                showSuccess('Account created successfully! Redirecting to dashboard...');
+                showSuccess('Account created! Please check your email to verify your account.');
                 
-                // Store user data
-                if (result.data?.user) {
-                    localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(result.data.user));
-                }
-                
-                // Redirect to dashboard after 2 seconds
+                // Redirect to email verification page after 2 seconds
                 setTimeout(() => {
-                    window.location.href = ROUTES.DASHBOARD;
+                    window.location.href = `/verify-email.html?email=${encodeURIComponent(formData.email)}`;
                 }, 2000);
                 
             } catch (error) {

@@ -13,12 +13,24 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 // Initialize Supabase client
 // Make sure Supabase JS library is loaded before this file
 // Add to HTML: <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-let supabase;
-if (typeof window !== 'undefined' && window.supabase) {
-    supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    window.supabase = supabase;
-} else {
-    console.error('Supabase library not loaded. Make sure to include Supabase JS CDN before config.js');
+
+// Wait for Supabase library to be available
+if (typeof window !== 'undefined') {
+    // Store the Supabase library reference
+    const supabaseLib = window.supabase;
+    
+    if (supabaseLib && supabaseLib.createClient) {
+        // Create the client instance
+        const supabaseClient = supabaseLib.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        
+        // Assign to window for global access
+        window.supabase = supabaseClient;
+        
+        console.log('✅ Supabase client initialized successfully');
+    } else {
+        console.error('❌ Supabase library not loaded. Make sure to include Supabase JS CDN before config.js');
+        console.log('Expected: <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>');
+    }
 }
 
 // ============================================

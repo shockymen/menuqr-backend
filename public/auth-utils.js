@@ -113,16 +113,38 @@ async function isOnboardingComplete() {
  */
 async function signup(email, password, metadata = {}) {
   try {
+    // Step 1: Create auth user with Supabase
     const { data, error } = await window.supabase.auth.signUp({
       email,
       password,
       options: {
-        data: metadata, // Store in user metadata
+        data: metadata, // Store in auth.users metadata
         emailRedirectTo: `${window.location.origin}${window.MENUQR_CONFIG.ROUTES.VERIFY_EMAIL}`
       }
     });
     
     if (error) throw error;
+    
+    // Step 2: Update profile with metadata (the trigger creates it, we update it)
+    if (data.user) {
+      const { error: profileError } = await window.supabase
+        .from('profiles')
+        .update({
+          full_name: metadata.full_name,
+          phone: metadata.phone,
+          country: metadata.country,
+          // Store business info temporarily in profile for onboarding
+          // These will be used when creating the business during onboarding
+          business_name: metadata.business_name,
+          business_type: metadata.business_type
+        })
+        .eq('id', data.user.id);
+      
+      if (profileError) {
+        console.error('Profile update error:', profileError);
+        // Don't fail signup if profile update fails
+      }
+    }
     
     return { success: true, data };
   } catch (error) {

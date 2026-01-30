@@ -1,57 +1,189 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Supabase Test</title>
-    <!-- 1. Load Supabase -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    
-    <!-- 2. Load your config -->
-    <script src="config.js"></script>
-    
-    <!-- 3. Load auth utils -->
-    <script src="auth-utils.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supabase Auth Test - MenuQR Africa</title>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-    <h1>Supabase Auth Test</h1>
-    <button onclick="testConnection()">Test Connection</button>
-    <pre id="result"></pre>
+<body class="bg-gray-50 p-8">
+    <div class="max-w-3xl mx-auto">
+        <h1 class="text-3xl font-bold mb-6">🧪 Supabase Auth Test</h1>
+        
+        <div class="bg-white rounded-lg shadow p-6 mb-4">
+            <button 
+                onclick="runTests()" 
+                class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 font-semibold"
+            >
+                Run All Tests
+            </button>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow p-6">
+            <h2 class="text-xl font-bold mb-4">Test Results:</h2>
+            <pre id="results" class="bg-gray-900 text-green-400 p-4 rounded font-mono text-sm overflow-auto max-h-96"></pre>
+        </div>
+        
+        <div class="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <h3 class="font-bold text-blue-900 mb-2">📋 Expected Script Order in HTML:</h3>
+            <pre class="text-sm bg-white p-3 rounded border"><code>&lt;!-- 1. Supabase Library FIRST --&gt;
+&lt;script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"&gt;&lt;/script&gt;
+
+&lt;!-- 2. Config (initializes client) --&gt;
+&lt;script src="config.js"&gt;&lt;/script&gt;
+
+&lt;!-- 3. Auth Utils (uses client) --&gt;
+&lt;script src="auth-utils.js"&gt;&lt;/script&gt;</code></pre>
+        </div>
+    </div>
+
+    <!-- Load scripts in correct order -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="config.js"></script>
+    <script src="auth-utils.js"></script>
     
     <script>
-        async function testConnection() {
-            const result = document.getElementById('result');
-            result.textContent = 'Testing...';
+        function log(message, isError = false) {
+            const results = document.getElementById('results');
+            const prefix = isError ? '❌' : '✅';
+            const line = `${prefix} ${message}\n`;
+            results.textContent += line;
+            
+            if (isError) {
+                console.error(message);
+            } else {
+                console.log(message);
+            }
+        }
+        
+        async function runTests() {
+            const results = document.getElementById('results');
+            results.textContent = 'Running tests...\n\n';
             
             try {
-                // Test 1: Check if Supabase is initialized
-                if (window.supabase) {
-                    result.textContent += '\n✅ Supabase client initialized';
-                } else {
-                    result.textContent += '\n❌ Supabase client NOT initialized';
+                // Test 1: Check if Supabase library loaded
+                log('TEST 1: Checking Supabase library...');
+                if (typeof window.supabase === 'undefined') {
+                    log('Supabase library not found in window object', true);
+                    log('Make sure CDN is loaded: https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2', true);
+                    return;
+                }
+                log('Supabase library loaded');
+                
+                // Test 2: Check client properties
+                log('\nTEST 2: Checking Supabase client...');
+                if (!window.supabase.auth) {
+                    log('window.supabase.auth is undefined', true);
+                    log('Client may not be initialized correctly', true);
+                    log('Current window.supabase:', true);
+                    log(JSON.stringify(Object.keys(window.supabase), null, 2), true);
+                    return;
+                }
+                log('Client has auth property');
+                
+                // Test 3: Check if we can call getSession
+                log('\nTEST 3: Testing auth.getSession()...');
+                const { data: { session }, error: sessionError } = await window.supabase.auth.getSession();
+                
+                if (sessionError) {
+                    log(`Session error: ${sessionError.message}`, true);
                     return;
                 }
                 
-                // Test 2: Check auth state
-                const { data: { session } } = await window.supabase.auth.getSession();
-                result.textContent += '\n✅ Can call auth.getSession()';
-                result.textContent += `\nCurrent session: ${session ? 'Logged in' : 'Not logged in'}`;
+                log('auth.getSession() works');
+                log(`Current session: ${session ? 'Logged in (' + session.user.email + ')' : 'Not logged in'}`);
                 
-                // Test 3: Check profiles table access
-                const { data, error } = await window.supabase
+                // Test 4: Check config
+                log('\nTEST 4: Checking MENUQR_CONFIG...');
+                if (!window.MENUQR_CONFIG) {
+                    log('window.MENUQR_CONFIG not found', true);
+                    return;
+                }
+                log('MENUQR_CONFIG loaded');
+                log(`Supabase URL: ${window.MENUQR_CONFIG.SUPABASE_URL}`);
+                
+                // Test 5: Check auth utils
+                log('\nTEST 5: Checking MenuQRAuth utilities...');
+                if (!window.MenuQRAuth) {
+                    log('window.MenuQRAuth not found', true);
+                    log('auth-utils.js may not be loaded', true);
+                    return;
+                }
+                log('MenuQRAuth utilities loaded');
+                
+                // Test 6: Test auth functions
+                log('\nTEST 6: Testing auth utility functions...');
+                const isAuth = await window.MenuQRAuth.isAuthenticated();
+                log(`isAuthenticated(): ${isAuth}`);
+                
+                const currentUser = await window.MenuQRAuth.getCurrentUser();
+                log(`getCurrentUser(): ${currentUser ? currentUser.email : 'null (not logged in)'}`);
+                
+                // Test 7: Check profiles table access
+                log('\nTEST 7: Testing database access (profiles table)...');
+                const { data: profileData, error: profileError } = await window.supabase
                     .from('profiles')
                     .select('count')
-                    .limit(1);
+                    .limit(0);
                 
-                if (error) {
-                    result.textContent += '\n⚠️ Profiles table: ' + error.message;
+                if (profileError) {
+                    if (profileError.message.includes('relation "public.profiles" does not exist')) {
+                        log('Profiles table does not exist yet', true);
+                        log('You need to run the SQL migration to create it', true);
+                    } else {
+                        log(`Profiles table error: ${profileError.message}`, true);
+                    }
                 } else {
-                    result.textContent += '\n✅ Can access profiles table';
+                    log('Can access profiles table');
                 }
                 
-                result.textContent += '\n\n✅ ALL TESTS PASSED!';
+                // Test 8: Check businesses table
+                log('\nTEST 8: Testing businesses table access...');
+                const { data: bizData, error: bizError } = await window.supabase
+                    .from('businesses')
+                    .select('count')
+                    .limit(0);
+                
+                if (bizError) {
+                    log(`Businesses table: ${bizError.message}`, true);
+                } else {
+                    log('Can access businesses table');
+                }
+                
+                // Test 9: Check subscription_plans
+                log('\nTEST 9: Testing subscription_plans table...');
+                const { data: plansData, error: plansError } = await window.supabase
+                    .from('subscription_plans')
+                    .select('name, price')
+                    .limit(5);
+                
+                if (plansError) {
+                    log(`Subscription plans: ${plansError.message}`, true);
+                } else {
+                    log('Can access subscription_plans table');
+                    if (plansData && plansData.length > 0) {
+                        log(`Found ${plansData.length} plans:`);
+                        plansData.forEach(plan => {
+                            log(`  - ${plan.name}: GH₵${plan.price}`);
+                        });
+                    }
+                }
+                
+                // All tests passed
+                log('\n\n🎉 ALL TESTS PASSED!');
+                log('\nYour Supabase Auth setup is working correctly!');
+                log('You can now start building your authentication pages.');
+                
             } catch (error) {
-                result.textContent += '\n❌ Error: ' + error.message;
+                log(`\n❌ UNEXPECTED ERROR: ${error.message}`, true);
+                log(`Stack: ${error.stack}`, true);
             }
         }
+        
+        // Auto-run tests on page load
+        window.addEventListener('load', () => {
+            setTimeout(runTests, 500);
+        });
     </script>
 </body>
 </html>
