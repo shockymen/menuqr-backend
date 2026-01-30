@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome Back - MenuQR Africa</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        .serif { font-family: 'Playfair Display', serif; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        
+        .luxury-gradient {
+            background: linear-gradient(135deg, #0F1115 0%, #1a1a1a 100%);
+        }
+        
+        .gold-shimmer {
+            background: linear-gradient(135deg, #C5A059 0%, #E67037 100%);
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+        
+        .floating {
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    
+    <!-- Main Container -->
+    <div class="min-h-screen grid lg:grid-cols-2">
+        
+        <!-- Left Side - Branding & Visual -->
+        <div class="relative overflow-hidden hidden lg:flex items-center justify-center p-12">
+            <!-- Background Image -->
+            <div class="absolute inset-0">
+                <img src="https://images.unsplash.com/photo-1551632436-cbf8dd35adfa?auto=format&fit=crop&w=1920&q=80" 
+                     alt="Elegant Hotel Restaurant" 
+                     class="w-full h-full object-cover">
+                <div class="absolute inset-0 bg-gradient-to-br from-black/85 via-black/80 to-black/85"></div>
+            </div>
+            
+            <!-- Dot Pattern Overlay -->
+            <div class="absolute inset-0 opacity-5">
+                <div class="absolute inset-0" style="background-image: radial-gradient(circle at 2px 2px, white 1px, transparent 0); background-size: 40px 40px;"></div>
+            </div>
+            
+            <!-- Content -->
+            <div class="relative z-10 max-w-lg">
+                <!-- Logo -->
+                <a href="index.html" class="inline-flex items-center gap-3 mb-12">
+                    <div class="w-16 h-16 rounded-2xl gold-shimmer flex items-center justify-center shadow-2xl">
+                        <svg width="36" height="36" viewBox="0 0 20 20" fill="white">
+                            <path d="M10 4L15 8V12L10 16L5 12V8L10 4Z"/>
+                        </svg>
+                    </div>
+                    <span class="text-3xl font-extrabold tracking-tight text-white">Menu<span class="text-amber-500">QR</span></span>
+                </a>
+                
+                <!-- Headline -->
+                <h1 class="serif text-5xl lg:text-6xl text-white mb-6 leading-tight">
+                    Welcome <i class="text-amber-500">Back</i> to Your Dashboard
+                </h1>
+                
+                <p class="text-white/70 text-lg mb-12 leading-relaxed">
+                    Manage your digital menus, update prices instantly, and track your analytics in real-time.
+                </p>
+                
+                <!-- Feature List -->
+                <div class="space-y-4 mb-12">
+                    <div class="flex items-center gap-4">
+                        <div class="w-10 h-10 rounded-lg gold-shimmer flex items-center justify-center flex-shrink-0">
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="white">
+                                <path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <div class="text-white font-semibold text-sm">Update menus in seconds</div>
+                            <div class="text-white/60 text-xs">No printing, no delays</div>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <div class="w-10 h-10 rounded-lg gold-shimmer flex items-center justify-center flex-shrink-0">
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="white">
+                                <path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <div class="text-white font-semibold text-sm">Track customer views</div>
+                            <div class="text-white/60 text-xs">Real-time analytics</div>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <div class="w-10 h-10 rounded-lg gold-shimmer flex items-center justify-center flex-shrink-0">
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="white">
+                                <path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <div class="text-white font-semibold text-sm">Serve in 25+ languages</div>
+                            <div class="text-white/60 text-xs">Instant translation</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Quick Stats -->
+                <div class="glass-effect rounded-2xl p-6">
+                    <div class="grid grid-cols-2 gap-6">
+                        <div>
+                            <div class="text-amber-500 text-3xl font-bold serif mb-1">2,847</div>
+                            <div class="text-white/60 text-xs uppercase tracking-wider">Menu views today</div>
+                        </div>
+                        <div>
+                            <div class="text-amber-500 text-3xl font-bold serif mb-1">142</div>
+                            <div class="text-white/60 text-xs uppercase tracking-wider">Active orders</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Right Side - Form -->
+        <div class="flex items-center justify-center p-6 lg:p-12 bg-gradient-to-br from-gray-50 to-white">
+            <div class="w-full max-w-md">
+                
+                <!-- Mobile Logo -->
+                <a href="index.html" class="lg:hidden flex items-center justify-center gap-3 mb-8">
+                    <div class="w-12 h-12 rounded-xl gold-shimmer flex items-center justify-center shadow-lg">
+                        <svg width="28" height="28" viewBox="0 0 20 20" fill="white">
+                            <path d="M10 4L15 8V12L10 16L5 12V8L10 4Z"/>
+                        </svg>
+                    </div>
+                    <span class="text-2xl font-extrabold tracking-tight">Menu<span class="text-amber-600">QR</span></span>
+                </a>
+                
+                <!-- Header -->
+                <div class="mb-8">
+                    <h2 class="serif text-4xl font-bold text-gray-900 mb-3">Sign In</h2>
+                    <p class="text-gray-500">Access your dashboard and manage your menus</p>
+                </div>
+                
+                <!-- Form -->
+                <form id="loginForm" class="space-y-5">
+                    
+                    <!-- Email -->
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-2">Email Address</label>
+                        <input type="email" id="email" required placeholder="you@yourbusiness.com" class="w-full px-4 py-4 rounded-xl border-2 border-gray-200 focus:border-amber-500 focus:ring-4 focus:ring-amber-500/10 outline-none transition text-sm">
+                    </div>
+                    
+                    <!-- Password -->
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-2">Password</label>
+                        <input type="password" id="password" required placeholder="Enter your password" class="w-full px-4 py-4 rounded-xl border-2 border-gray-200 focus:border-amber-500 focus:ring-4 focus:ring-amber-500/10 outline-none transition text-sm">
+                    </div>
+                    
+                    <!-- Remember & Forgot -->
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <input type="checkbox" id="remember" class="w-4 h-4 rounded border-gray-300 text-amber-600 focus:ring-amber-500 focus:ring-4 focus:ring-amber-500/10">
+                            <label for="remember" class="text-sm text-gray-600">Remember me</label>
+                        </div>
+                        <a href="#" class="text-sm text-amber-600 hover:text-amber-700 font-bold">Forgot password?</a>
+                    </div>
+                    
+                    <!-- Submit Button -->
+                    <button type="submit" class="w-full gold-shimmer text-white font-bold py-4 rounded-xl transition-all duration-300 shadow-2xl hover:shadow-amber-500/50 hover:scale-[1.02] text-sm uppercase tracking-wider">
+                        Sign In to Dashboard →
+                    </button>
+                    
+                </form>
+                
+                <!-- Divider -->
+                <div class="relative my-8">
+                    <div class="absolute inset-0 flex items-center">
+                        <div class="w-full border-t border-gray-200"></div>
+                    </div>
+                    <div class="relative flex justify-center text-xs">
+                        <span class="px-4 bg-white text-gray-400 uppercase tracking-wider font-semibold">Or continue with</span>
+                    </div>
+                </div>
+                
+                <!-- Social Login -->
+                <div class="grid grid-cols-2 gap-4 mb-8">
+                    <button type="button" class="flex items-center justify-center gap-2 px-4 py-3.5 border-2 border-gray-200 rounded-xl hover:bg-gray-50 hover:border-amber-500 transition text-sm font-bold text-gray-700">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+                            <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                            <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+                            <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+                        </svg>
+                        Google
+                    </button>
+                    <button type="button" class="flex items-center justify-center gap-2 px-4 py-3.5 border-2 border-gray-200 rounded-xl hover:bg-gray-50 hover:border-amber-500 transition text-sm font-bold text-gray-700">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="#1877F2">
+                            <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                        </svg>
+                        Facebook
+                    </button>
+                </div>
+                
+                <!-- Signup Link -->
+                <p class="text-center text-sm text-gray-600">
+                    Don't have an account? 
+                    <a href="signup.html" class="text-amber-600 hover:text-amber-700 font-bold">Start Free Trial →</a>
+                </p>
+                
+                <!-- Help Links -->
+                <div class="text-center mt-8 space-x-4 text-xs text-gray-400">
+                    <a href="#" class="hover:text-gray-600">Help Center</a>
+                    <span>•</span>
+                    <a href="#" class="hover:text-gray-600">Contact Support</a>
+                    <span>•</span>
+                    <a href="#" class="hover:text-gray-600">Privacy</a>
+                </div>
+                
+            </div>
+        </div>
+        
+    </div>
+
+    <!-- Configuration -->
+    <script src="config.js"></script>
+    
+    <!-- Main Script -->
+    <script>
+        // ============================================
+        // CONFIGURATION
+        // ============================================
+        
+        // Load from external config file
+        const API_BASE_URL = window.MENUQR_CONFIG.API_BASE_URL;
+        const ENDPOINTS = window.MENUQR_CONFIG.ENDPOINTS;
+        const STORAGE_KEYS = window.MENUQR_CONFIG.STORAGE_KEYS;
+        const ROUTES = window.MENUQR_CONFIG.ROUTES;
+        
+        // ============================================
+        // FORM HANDLING
+        // ============================================
+        
+        const form = document.getElementById('loginForm');
+        const submitButton = form.querySelector('button[type="submit"]');
+        const originalButtonText = submitButton.innerHTML;
+        
+        // Loading state
+        function setLoading(isLoading) {
+            if (isLoading) {
+                submitButton.disabled = true;
+                submitButton.innerHTML = `
+                    <div class="flex items-center justify-center gap-2">
+                        <svg class="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        <span>Signing In...</span>
+                    </div>
+                `;
+            } else {
+                submitButton.disabled = false;
+                submitButton.innerHTML = originalButtonText;
+            }
+        }
+        
+        // Show error message
+        function showError(message) {
+            // Remove any existing alerts
+            const existingAlert = document.getElementById('alert-message');
+            if (existingAlert) existingAlert.remove();
+            
+            // Create error message
+            const alertDiv = document.createElement('div');
+            alertDiv.id = 'alert-message';
+            alertDiv.className = 'bg-red-50 border-l-4 border-red-500 p-4 rounded-xl mb-6 animate-fade-in';
+            alertDiv.innerHTML = `
+                <div class="flex items-start gap-3">
+                    <svg class="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                    </svg>
+                    <div class="flex-1">
+                        <p class="text-sm font-semibold text-red-800">Error</p>
+                        <p class="text-sm text-red-700 mt-1">${message}</p>
+                    </div>
+                </div>
+            `;
+            
+            // Insert before form
+            const formContainer = form.parentElement;
+            formContainer.insertBefore(alertDiv, form);
+            
+            // Auto-remove after 5 seconds
+            setTimeout(() => alertDiv.remove(), 5000);
+        }
+        
+        // Show success message
+        function showSuccess(message) {
+            const existingAlert = document.getElementById('alert-message');
+            if (existingAlert) existingAlert.remove();
+            
+            const alertDiv = document.createElement('div');
+            alertDiv.id = 'alert-message';
+            alertDiv.className = 'bg-green-50 border-l-4 border-green-500 p-4 rounded-xl mb-6 animate-fade-in';
+            alertDiv.innerHTML = `
+                <div class="flex items-start gap-3">
+                    <svg class="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                    </svg>
+                    <div class="flex-1">
+                        <p class="text-sm font-semibold text-green-800">Success!</p>
+                        <p class="text-sm text-green-700 mt-1">${message}</p>
+                    </div>
+                </div>
+            `;
+            
+            const formContainer = form.parentElement;
+            formContainer.insertBefore(alertDiv, form);
+        }
+        
+        // ============================================
+        // FORM VALIDATION
+        // ============================================
+        
+        function validateForm() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            // Email validation
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                showError('Please enter a valid email address');
+                return false;
+            }
+            
+            // Password validation
+            if (!password || password.length < 6) {
+                showError('Please enter your password');
+                return false;
+            }
+            
+            return true;
+        }
+        
+        // ============================================
+        // API CALL
+        // ============================================
+        
+        async function loginUser(email, password) {
+            const response = await fetch(`${API_BASE_URL}${ENDPOINTS.SIGNIN}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ email, password })
+            });
+            
+            const data = await response.json();
+            
+            if (!response.ok) {
+                throw new Error(data.error?.message || 'Login failed');
+            }
+            
+            return data;
+        }
+        
+        // ============================================
+        // FORM SUBMIT HANDLER
+        // ============================================
+        
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            // Validate form
+            if (!validateForm()) {
+                return;
+            }
+            
+            // Start loading
+            setLoading(true);
+            
+            try {
+                // Get form values
+                const email = document.getElementById('email').value;
+                const password = document.getElementById('password').value;
+                const remember = document.getElementById('remember').checked;
+                
+                // Call API
+                const result = await loginUser(email, password);
+                
+                console.log('Login successful:', result);
+                
+                // Store authentication tokens
+                if (result.data?.access_token) {
+                    // Store access token
+                    localStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, result.data.access_token);
+                    
+                    // Store refresh token if remember me is checked
+                    if (remember && result.data.refresh_token) {
+                        localStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, result.data.refresh_token);
+                    }
+                    
+                    // Store user data
+                    if (result.data.user) {
+                        localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(result.data.user));
+                    }
+                }
+                
+                // Show success message
+                showSuccess('Login successful! Redirecting to dashboard...');
+                
+                // Redirect to dashboard after 1.5 seconds
+                setTimeout(() => {
+                    window.location.href = ROUTES.DASHBOARD;
+                }, 1500);
+                
+            } catch (error) {
+                console.error('Login error:', error);
+                showError(error.message || 'Invalid email or password. Please try again.');
+                setLoading(false);
+            }
+        });
+        
+        // ============================================
+        // CHECK IF ALREADY LOGGED IN
+        // ============================================
+        
+        // Check if user is already logged in
+        const existingToken = localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN);
+        if (existingToken) {
+            // User already has a token, redirect to dashboard
+            console.log('User already logged in, redirecting...');
+            window.location.href = ROUTES.DASHBOARD;
+        }
+    </script>
+
+</body>
+</html>
