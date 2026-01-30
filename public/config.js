@@ -2,32 +2,40 @@
 // MenuQR Africa - Configuration File
 // ============================================
 
+// ============================================
+// SUPABASE CONFIGURATION
+// ============================================
+
+// Supabase credentials
+const SUPABASE_URL = 'https://gcahapillumpnwsvvwxc.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdjYWhhcGlsbHVtcG53c3Z2d3hjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjkyODY4NTksImV4cCI6MjA4NDg2Mjg1OX0.RjTyIq700gb57dQOe7lfY85r2OC8lAUa45K_GJEWJ-g';
+
+// Initialize Supabase client
+// Make sure Supabase JS library is loaded before this file
+// Add to HTML: <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+let supabase;
+if (typeof window !== 'undefined' && window.supabase) {
+    supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    window.supabase = supabase;
+} else {
+    console.error('Supabase library not loaded. Make sure to include Supabase JS CDN before config.js');
+}
+
+// ============================================
+// APPLICATION CONFIGURATION
+// ============================================
+
 const CONFIG = {
-    // API Configuration
-    // Since frontend and backend are on same Vercel domain, use empty string
+    // Supabase Config (for reference)
+    SUPABASE_URL,
+    SUPABASE_ANON_KEY,
+    
+    // API Configuration (for custom endpoints if needed)
     API_BASE_URL: '', // Empty string = same origin (no CORS issues)
     
-    // Alternative: Use window.location.origin for explicit same-origin
-    // API_BASE_URL: typeof window !== 'undefined' ? window.location.origin : '',
-    
-    // API Endpoints
+    // Custom API Endpoints (for non-Supabase features)
     ENDPOINTS: {
-        // Authentication
-        SIGNUP: '/api/v1/auth/signup',
-        SIGNIN: '/api/v1/auth/signin',
-        SIGNOUT: '/api/v1/auth/signout',
-        REFRESH: '/api/v1/auth/refresh',
-        ME: '/api/v1/auth/me',
-        VERIFY_EMAIL: '/api/v1/auth/verify-email',
-        RESEND_VERIFICATION: '/api/v1/auth/resend-verification',
-        FORGOT_PASSWORD: '/api/v1/auth/forgot-password',
-        RESET_PASSWORD: '/api/v1/auth/reset-password',
-        CHANGE_PASSWORD: '/api/v1/auth/change-password',
-        
-        // User
-        USER_PREFERENCES: '/api/v1/user/preferences',
-        
-        // Menus
+        // Menus (custom API)
         MENUS: '/api/v1/menus',
         MENU_BY_ID: (id) => `/api/v1/menus/${id}`,
         MENU_ACTIVATE: (id) => `/api/v1/menus/${id}/activate`,
@@ -60,13 +68,11 @@ const CONFIG = {
         WEBHOOK_PAYSTACK: '/api/v1/webhooks/paystack',
     },
     
-    // Local Storage Keys
+    // Local Storage Keys (optional - Supabase manages its own session storage)
     STORAGE_KEYS: {
-        ACCESS_TOKEN: 'menuqr_access_token',
-        REFRESH_TOKEN: 'menuqr_refresh_token',
-        USER: 'menuqr_user',
         THEME: 'menuqr_theme',
         LANGUAGE: 'menuqr_language',
+        ONBOARDING_STATE: 'menuqr_onboarding_state',
     },
     
     // App Routes
@@ -75,6 +81,8 @@ const CONFIG = {
         LANDING: '/index.html',
         SIGNUP: '/signup.html',
         LOGIN: '/login.html',
+        VERIFY_EMAIL: '/verify-email.html',
+        ONBOARDING: '/onboarding.html',
         DASHBOARD: '/dashboard.html',
         MENUS: '/menus.html',
         SETTINGS: '/settings.html',
@@ -87,14 +95,14 @@ const CONFIG = {
         APP_NAME: 'MenuQR Africa',
         DEFAULT_LANGUAGE: 'en',
         SUPPORTED_LANGUAGES: ['en', 'fr', 'es', 'ar', 'pt', 'sw', 'zh'],
-        TOKEN_REFRESH_BUFFER: 5 * 60 * 1000, // Refresh token 5 minutes before expiry
         MAX_FILE_SIZE: 5 * 1024 * 1024, // 5MB
         ALLOWED_IMAGE_TYPES: ['image/jpeg', 'image/png', 'image/webp', 'image/gif'],
     },
     
     // Feature Flags
     FEATURES: {
-        SOCIAL_LOGIN: true,
+        GOOGLE_OAUTH: true,
+        FACEBOOK_OAUTH: false, // Can enable later
         EMAIL_VERIFICATION: true,
         PASSWORD_RESET: true,
         DARK_MODE: true,

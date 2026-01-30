@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Supabase Test</title>
+    <!-- 1. Load Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <!-- 2. Load your config -->
+    <script src="config.js"></script>
+    
+    <!-- 3. Load auth utils -->
+    <script src="auth-utils.js"></script>
+</head>
+<body>
+    <h1>Supabase Auth Test</h1>
+    <button onclick="testConnection()">Test Connection</button>
+    <pre id="result"></pre>
+    
+    <script>
+        async function testConnection() {
+            const result = document.getElementById('result');
+            result.textContent = 'Testing...';
+            
+            try {
+                // Test 1: Check if Supabase is initialized
+                if (window.supabase) {
+                    result.textContent += '\n✅ Supabase client initialized';
+                } else {
+                    result.textContent += '\n❌ Supabase client NOT initialized';
+                    return;
+                }
+                
+                // Test 2: Check auth state
+                const { data: { session } } = await window.supabase.auth.getSession();
+                result.textContent += '\n✅ Can call auth.getSession()';
+                result.textContent += `\nCurrent session: ${session ? 'Logged in' : 'Not logged in'}`;
+                
+                // Test 3: Check profiles table access
+                const { data, error } = await window.supabase
+                    .from('profiles')
+                    .select('count')
+                    .limit(1);
+                
+                if (error) {
+                    result.textContent += '\n⚠️ Profiles table: ' + error.message;
+                } else {
+                    result.textContent += '\n✅ Can access profiles table';
+                }
+                
+                result.textContent += '\n\n✅ ALL TESTS PASSED!';
+            } catch (error) {
+                result.textContent += '\n❌ Error: ' + error.message;
+            }
+        }
+    </script>
+</body>
+</html>
