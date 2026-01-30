@@ -119,7 +119,7 @@ async function signup(email, password, metadata = {}) {
       password,
       options: {
         data: metadata, // Store in auth.users metadata
-        emailRedirectTo: `${window.location.origin}${window.MENUQR_CONFIG.ROUTES.VERIFY_EMAIL}`
+        emailRedirectTo: `${window.location.origin}/verify-email.html`
       }
     });
     
@@ -188,7 +188,7 @@ async function signInWithOAuth(provider = 'google') {
     const { data, error } = await window.supabase.auth.signInWithOAuth({
       provider: provider,
       options: {
-        redirectTo: `${window.location.origin}${window.MENUQR_CONFIG.ROUTES.DASHBOARD}`
+        redirectTo: `${window.location.origin}/dashboard.html`
       }
     });
     
@@ -208,11 +208,11 @@ async function signInWithOAuth(provider = 'google') {
 async function signout() {
   try {
     await window.supabase.auth.signOut();
-    window.location.href = window.MENUQR_CONFIG.ROUTES.LOGIN;
+    window.location.href = 'login.html';
   } catch (error) {
     console.error('Sign out error:', error);
     // Force redirect even if signout fails
-    window.location.href = window.MENUQR_CONFIG.ROUTES.LOGIN;
+    window.location.href = 'login.html';
   }
 }
 
@@ -224,7 +224,7 @@ async function signout() {
 async function resetPassword(email) {
   try {
     const { data, error } = await window.supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}${window.MENUQR_CONFIG.ROUTES.LOGIN}`
+      redirectTo: `${window.location.origin}/login.html`
     });
     
     if (error) throw error;
@@ -351,21 +351,21 @@ async function enforceAuthGates() {
     // Gate 0: Check authentication
     const authenticated = await isAuthenticated();
     if (!authenticated) {
-      window.location.href = window.MENUQR_CONFIG.ROUTES.LOGIN;
+      window.location.href = 'login.html';
       return false;
     }
     
     // Gate 1: Check email verification
     const emailVerified = await isEmailVerified();
     if (!emailVerified) {
-      window.location.href = window.MENUQR_CONFIG.ROUTES.VERIFY_EMAIL;
+      window.location.href = 'verify-email.html';
       return false;
     }
     
     // Gate 2: Check onboarding completion
     const onboardingComplete = await isOnboardingComplete();
     if (!onboardingComplete) {
-      window.location.href = window.MENUQR_CONFIG.ROUTES.ONBOARDING;
+      window.location.href = 'onboarding.html';
       return false;
     }
     
@@ -373,7 +373,7 @@ async function enforceAuthGates() {
     return true;
   } catch (error) {
     console.error('Error enforcing auth gates:', error);
-    window.location.href = window.MENUQR_CONFIG.ROUTES.LOGIN;
+    window.location.href = 'login.html';
     return false;
   }
 }
@@ -388,18 +388,18 @@ async function redirectIfAuthenticated() {
     // Check gates to determine where to redirect
     const emailVerified = await isEmailVerified();
     if (!emailVerified) {
-      window.location.href = window.MENUQR_CONFIG.ROUTES.VERIFY_EMAIL;
+      window.location.href = 'verify-email.html';
       return;
     }
     
     const onboardingComplete = await isOnboardingComplete();
     if (!onboardingComplete) {
-      window.location.href = window.MENUQR_CONFIG.ROUTES.ONBOARDING;
+      window.location.href = 'onboarding.html';
       return;
     }
     
     // User is fully set up, go to dashboard
-    window.location.href = window.MENUQR_CONFIG.ROUTES.DASHBOARD;
+    window.location.href = 'dashboard.html';
   }
 }
 
@@ -408,7 +408,7 @@ async function redirectIfAuthenticated() {
  * @returns {void}
  */
 function redirectToLogin() {
-  window.location.href = window.MENUQR_CONFIG.ROUTES.LOGIN;
+  window.location.href = 'login.html';
 }
 
 /**
@@ -416,7 +416,7 @@ function redirectToLogin() {
  * @returns {void}
  */
 function redirectToDashboard() {
-  window.location.href = window.MENUQR_CONFIG.ROUTES.DASHBOARD;
+  window.location.href = 'dashboard.html';
 }
 
 // ============================================
