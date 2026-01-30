@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify Your Email - MenuQR Africa</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        .serif { font-family: 'Playfair Display', serif; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        
+        .gold-shimmer {
+            background: linear-gradient(135deg, #C5A059 0%, #E67037 100%);
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+        
+        .floating {
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 20px rgba(197, 160, 89, 0.3); }
+            50% { box-shadow: 0 0 40px rgba(197, 160, 89, 0.6); }
+        }
+        
+        .pulse-glow {
+            animation: pulse-glow 2s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    
+    <!-- Main Container -->
+    <div class="min-h-screen grid lg:grid-cols-2">
+        
+        <!-- Left Side - Branding & Visual -->
+        <div class="relative overflow-hidden hidden lg:flex items-center justify-center p-12">
+            <!-- Background Image -->
+            <div class="absolute inset-0">
+                <img src="https://images.unsplash.com/photo-1552566626-52f8b828add9?auto=format&fit=crop&w=1920&q=80" 
+                     alt="Success" 
+                     class="w-full h-full object-cover">
+                <div class="absolute inset-0 bg-gradient-to-br from-black/85 via-black/80 to-black/85"></div>
+            </div>
+            
+            <!-- Dot Pattern Overlay -->
+            <div class="absolute inset-0 opacity-5">
+                <div class="absolute inset-0" style="background-image: radial-gradient(circle at 2px 2px, white 1px, transparent 0); background-size: 40px 40px;"></div>
+            </div>
+            
+            <!-- Content -->
+            <div class="relative z-10 max-w-lg">
+                <!-- Logo -->
+                <a href="index.html" class="inline-flex items-center gap-3 mb-12">
+                    <div class="w-16 h-16 rounded-2xl gold-shimmer flex items-center justify-center shadow-2xl">
+                        <svg width="36" height="36" viewBox="0 0 20 20" fill="white">
+                            <path d="M10 4L15 8V12L10 16L5 12V8L10 4Z"/>
+                        </svg>
+                    </div>
+                    <span class="text-3xl font-extrabold tracking-tight text-white">Menu<span class="text-amber-500">QR</span></span>
+                </a>
+                
+                <!-- Headline -->
+                <h1 class="serif text-5xl lg:text-6xl text-white mb-6 leading-tight">
+                    You're <i class="text-amber-500">Almost</i> There!
+                </h1>
+                
+                <p class="text-white/70 text-lg mb-12 leading-relaxed">
+                    Just one more step to unlock the full power of MenuQR Africa and join Africa's leading digital menu platform.
+                </p>
+                
+                <!-- Progress Steps -->
+                <div class="space-y-6 mb-12">
+                    <div class="flex items-center gap-4">
+                        <div class="w-10 h-10 rounded-full gold-shimmer flex items-center justify-center flex-shrink-0">
+                            <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <div class="text-white font-bold">Account Created</div>
+                            <div class="text-white/60 text-sm">Your details are saved</div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center gap-4">
+                        <div class="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0 pulse-glow">
+                            <svg class="w-6 h-6 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <div class="text-white font-bold">Email Verification</div>
+                            <div class="text-amber-400 text-sm">In progress...</div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center gap-4 opacity-40">
+                        <div class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center flex-shrink-0">
+                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <div class="text-white/60 font-bold">Complete Setup</div>
+                            <div class="text-white/40 text-sm">Next step</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Security Badge -->
+                <div class="glass-effect rounded-2xl p-6 floating">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-full bg-green-500/20 flex items-center justify-center flex-shrink-0">
+                            <svg class="w-6 h-6 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <p class="text-white/90 text-sm font-bold">Secure & Encrypted</p>
+                            <p class="text-white/60 text-xs">Your data is protected with enterprise-grade security</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Right Side - Verification Content -->
+        <div class="flex items-center justify-center p-6 lg:p-12 bg-gradient-to-br from-gray-50 to-white">
+            <div class="w-full max-w-md">
+                
+                <!-- Mobile Logo -->
+                <a href="index.html" class="lg:hidden flex items-center justify-center gap-3 mb-8">
+                    <div class="w-12 h-12 rounded-xl gold-shimmer flex items-center justify-center shadow-lg">
+                        <svg width="28" height="28" viewBox="0 0 20 20" fill="white">
+                            <path d="M10 4L15 8V12L10 16L5 12V8L10 4Z"/>
+                        </svg>
+                    </div>
+                    <span class="text-2xl font-extrabold tracking-tight">Menu<span class="text-amber-600">QR</span></span>
+                </a>
+                
+                <!-- Icon -->
+                <div class="flex justify-center mb-6">
+                    <div class="w-24 h-24 rounded-full bg-gradient-to-br from-amber-50 to-orange-50 flex items-center justify-center shadow-lg">
+                        <svg class="w-12 h-12 text-amber-600 floating" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                        </svg>
+                    </div>
+                </div>
+                
+                <!-- Header -->
+                <div class="mb-8 text-center">
+                    <h2 class="serif text-4xl font-bold text-gray-900 mb-3">Check Your Email</h2>
+                    <p class="text-gray-600">We've sent a verification link to</p>
+                </div>
+                
+                <!-- Email Display -->
+                <div class="bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl p-5 mb-8 border-2 border-amber-200 shadow-lg">
+                    <div class="flex items-center gap-3">
+                        <svg class="w-5 h-5 text-amber-600 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/>
+                            <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/>
+                        </svg>
+                        <p id="userEmail" class="font-bold text-gray-900 break-all flex-1 text-center"></p>
+                    </div>
+                </div>
+                
+                <!-- Instructions -->
+                <div class="space-y-4 mb-8">
+                    <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+                        <div class="flex items-start gap-3">
+                            <div class="w-8 h-8 rounded-full gold-shimmer flex items-center justify-center flex-shrink-0">
+                                <span class="text-white font-bold text-sm">1</span>
+                            </div>
+                            <div class="flex-1">
+                                <p class="font-bold text-gray-900 mb-1">Open your email inbox</p>
+                                <p class="text-sm text-gray-600">Look for a message from MenuQR Africa</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+                        <div class="flex items-start gap-3">
+                            <div class="w-8 h-8 rounded-full gold-shimmer flex items-center justify-center flex-shrink-0">
+                                <span class="text-white font-bold text-sm">2</span>
+                            </div>
+                            <div class="flex-1">
+                                <p class="font-bold text-gray-900 mb-1">Click the verification link</p>
+                                <p class="text-sm text-gray-600">This confirms your email address</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+                        <div class="flex items-start gap-3">
+                            <div class="w-8 h-8 rounded-full gold-shimmer flex items-center justify-center flex-shrink-0">
+                                <span class="text-white font-bold text-sm">3</span>
+                            </div>
+                            <div class="flex-1">
+                                <p class="font-bold text-gray-900 mb-1">Complete your setup</p>
+                                <p class="text-sm text-gray-600">You'll be redirected to finish onboarding</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Resend Button -->
+                <button 
+                    id="resendBtn" 
+                    onclick="resendEmail()"
+                    class="w-full gold-shimmer text-white font-bold py-4 rounded-xl transition-all duration-300 shadow-xl hover:shadow-2xl hover:scale-[1.02] text-sm uppercase tracking-wider mb-4"
+                >
+                    Resend Verification Email
+                </button>
+                
+                <!-- Countdown Message -->
+                <p id="countdown" class="text-xs text-center text-gray-500 mb-6 hidden"></p>
+                
+                <!-- Tips Card -->
+                <div class="bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-xl p-5 mb-6">
+                    <div class="flex items-start gap-3 mb-3">
+                        <svg class="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                        </svg>
+                        <p class="font-bold text-blue-900">Can't find the email?</p>
+                    </div>
+                    <ul class="text-sm text-blue-800 space-y-2 ml-8">
+                        <li class="flex items-start gap-2">
+                            <span class="text-blue-600 font-bold">•</span>
+                            <span>Check your <span class="font-bold">spam or junk</span> folder</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="text-blue-600 font-bold">•</span>
+                            <span>Wait <span class="font-bold">2-3 minutes</span> for delivery</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="text-blue-600 font-bold">•</span>
+                            <span>Ensure the email address above is correct</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="text-blue-600 font-bold">•</span>
+                            <span>Look for emails from <span class="font-bold">onboarding@resend.dev</span></span>
+                        </li>
+                    </ul>
+                </div>
+                
+                <!-- Footer Links -->
+                <div class="text-center space-y-3">
+                    <p class="text-sm text-gray-600">
+                        Wrong email address? 
+                        <a href="signup.html" class="text-amber-600 hover:text-amber-700 font-bold underline">Sign up again</a>
+                    </p>
+                    
+                    <p class="text-sm text-gray-600">
+                        Already verified? 
+                        <a href="login.html" class="text-amber-600 hover:text-amber-700 font-bold">Sign in →</a>
+                    </p>
+                </div>
+                
+            </div>
+        </div>
+        
+    </div>
+
+    <!-- Supabase & Config -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="config.js"></script>
+    <script src="auth-utils.js"></script>
+    
+    <!-- Main Script -->
+    <script>
+        // ============================================
+        // GET EMAIL FROM URL
+        // ============================================
+        
+        function getEmailFromURL() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('email') || 'your email';
+        }
+        
+        // Display email
+        const userEmail = getEmailFromURL();
+        document.getElementById('userEmail').textContent = userEmail;
+        
+        // ============================================
+        // RESEND EMAIL FUNCTIONALITY
+        // ============================================
+        
+        let canResend = true;
+        let countdownInterval = null;
+        
+        async function resendEmail() {
+            if (!canResend) {
+                return;
+            }
+            
+            const email = getEmailFromURL();
+            
+            if (email === 'your email') {
+                showError('No email address found. Please sign up again.');
+                return;
+            }
+            
+            const resendBtn = document.getElementById('resendBtn');
+            const originalText = resendBtn.innerHTML;
+            
+            try {
+                // Show loading state
+                resendBtn.disabled = true;
+                resendBtn.innerHTML = `
+                    <div class="flex items-center justify-center gap-2">
+                        <svg class="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        <span>Sending...</span>
+                    </div>
+                `;
+                
+                // Call Supabase to resend confirmation email
+                const { error } = await window.supabase.auth.resend({
+                    type: 'signup',
+                    email: email
+                });
+                
+                if (error) throw error;
+                
+                // Show success
+                showSuccess('Verification email sent! Check your inbox.');
+                
+                // Start countdown (60 seconds)
+                startCooldown(60);
+                
+            } catch (error) {
+                console.error('Resend error:', error);
+                showError(error.message || 'Failed to resend email. Please try again.');
+                resendBtn.disabled = false;
+                resendBtn.innerHTML = originalText;
+            }
+        }
+        
+        // ============================================
+        // COOLDOWN TIMER
+        // ============================================
+        
+        function startCooldown(seconds) {
+            canResend = false;
+            const resendBtn = document.getElementById('resendBtn');
+            const countdownEl = document.getElementById('countdown');
+            
+            let remaining = seconds;
+            
+            function updateButton() {
+                resendBtn.disabled = true;
+                resendBtn.innerHTML = `Resend in ${remaining}s`;
+                countdownEl.classList.remove('hidden');
+                countdownEl.textContent = `You can request another email in ${remaining} seconds`;
+            }
+            
+            updateButton();
+            
+            countdownInterval = setInterval(() => {
+                remaining--;
+                
+                if (remaining <= 0) {
+                    clearInterval(countdownInterval);
+                    canResend = true;
+                    resendBtn.disabled = false;
+                    resendBtn.innerHTML = 'Resend Verification Email';
+                    countdownEl.classList.add('hidden');
+                } else {
+                    updateButton();
+                }
+            }, 1000);
+        }
+        
+        // ============================================
+        // NOTIFICATIONS
+        // ============================================
+        
+        function showError(message) {
+            showNotification(message, 'error');
+        }
+        
+        function showSuccess(message) {
+            showNotification(message, 'success');
+        }
+        
+        function showNotification(message, type = 'success') {
+            // Remove existing notifications
+            const existing = document.getElementById('notification');
+            if (existing) existing.remove();
+            
+            const bgColor = type === 'success' ? 'bg-green-50 border-green-500' : 'bg-red-50 border-red-500';
+            const textColor = type === 'success' ? 'text-green-800' : 'text-red-800';
+            const iconColor = type === 'success' ? 'text-green-500' : 'text-red-500';
+            
+            const icon = type === 'success' 
+                ? '<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>'
+                : '<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>';
+            
+            const notification = document.createElement('div');
+            notification.id = 'notification';
+            notification.className = `fixed top-4 right-4 ${bgColor} border-l-4 rounded-lg p-4 shadow-lg max-w-md animate-fade-in z-50`;
+            notification.innerHTML = `
+                <div class="flex items-start gap-3">
+                    <svg class="w-5 h-5 ${iconColor} flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                        ${icon}
+                    </svg>
+                    <p class="text-sm ${textColor} font-medium">${message}</p>
+                </div>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            // Auto remove after 5 seconds
+            setTimeout(() => notification.remove(), 5000);
+        }
+        
+        // ============================================
+        // PAGE LOAD
+        // ============================================
+        
+        // If no email in URL, redirect to signup
+        if (getEmailFromURL() === 'your email') {
+            console.warn('No email parameter found');
+        }
+    </script>
+
+</body>
+</html>

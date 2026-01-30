@@ -119,7 +119,7 @@ async function signup(email, password, metadata = {}) {
       password,
       options: {
         data: metadata, // Store in auth.users metadata
-        emailRedirectTo: `${window.location.origin}/verify-email.html`
+        emailRedirectTo: `${window.location.origin}/verify-success.html`
       }
     });
     
@@ -223,7 +223,7 @@ async function signout() {
  */
 async function resetPassword(email) {
   try {
-    const { data, error } = await window.supabase.auth.resetPasswordForEmail(email, {
+    const { error } = await window.supabase.auth.resetPasswordForEmail(email, {
       redirectTo: `${window.location.origin}/login.html`
     });
     
@@ -243,7 +243,7 @@ async function resetPassword(email) {
  */
 async function updatePassword(newPassword) {
   try {
-    const { data, error } = await window.supabase.auth.updateUser({
+    const { error } = await window.supabase.auth.updateUser({
       password: newPassword
     });
     
@@ -469,4 +469,4 @@ window.MenuQRAuth = {
   
   // Event listeners
   onAuthStateChange
-}; 
+};

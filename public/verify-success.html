@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Verified - MenuQR Africa</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        .serif { font-family: 'Playfair Display', serif; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        
+        .gold-shimmer {
+            background: linear-gradient(135deg, #C5A059 0%, #E67037 100%);
+        }
+        
+        .success-gradient {
+            background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+        }
+        
+        @keyframes checkmark {
+            0% { 
+                stroke-dashoffset: 100;
+                opacity: 0;
+            }
+            20% {
+                opacity: 1;
+            }
+            100% { 
+                stroke-dashoffset: 0;
+                opacity: 1;
+            }
+        }
+        
+        .checkmark {
+            stroke-dasharray: 100;
+            stroke-dashoffset: 100;
+            animation: checkmark 0.8s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+            animation-delay: 0.5s;
+            opacity: 0;
+        }
+        
+        @keyframes scaleIn {
+            0% { transform: scale(0) rotate(-180deg); opacity: 0; }
+            60% { transform: scale(1.1) rotate(10deg); }
+            100% { transform: scale(1) rotate(0deg); opacity: 1; }
+        }
+        
+        .scale-in {
+            animation: scaleIn 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.6s ease-out forwards;
+        }
+        
+        .fade-in-delay-1 { animation-delay: 0.8s; opacity: 0; }
+        .fade-in-delay-2 { animation-delay: 1s; opacity: 0; }
+        .fade-in-delay-3 { animation-delay: 1.2s; opacity: 0; }
+        
+        @keyframes progress {
+            from { width: 0%; }
+            to { width: 100%; }
+        }
+        
+        .progress-bar {
+            animation: progress 3s linear forwards;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+        
+        .floating {
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        @keyframes pulseRing {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(1.5);
+                opacity: 0;
+            }
+        }
+        
+        .pulse-ring {
+            animation: pulseRing 1.5s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+        }
+        
+        .pulse-ring-delay {
+            animation: pulseRing 1.5s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+            animation-delay: 0.5s;
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    
+    <!-- Main Container -->
+    <div class="min-h-screen grid lg:grid-cols-2">
+        
+        <!-- Left Side - Success Celebration -->
+        <div class="relative overflow-hidden hidden lg:flex items-center justify-center p-12">
+            <!-- Background Image -->
+            <div class="absolute inset-0">
+                <img src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=1920&q=80" 
+                     alt="Celebration" 
+                     class="w-full h-full object-cover">
+                <div class="absolute inset-0 bg-gradient-to-br from-black/85 via-black/80 to-black/85"></div>
+            </div>
+            
+            <!-- Dot Pattern Overlay -->
+            <div class="absolute inset-0 opacity-5">
+                <div class="absolute inset-0" style="background-image: radial-gradient(circle at 2px 2px, white 1px, transparent 0); background-size: 40px 40px;"></div>
+            </div>
+            
+            <!-- Content -->
+            <div class="relative z-10 max-w-lg">
+                <!-- Logo -->
+                <a href="index.html" class="inline-flex items-center gap-3 mb-12">
+                    <div class="w-16 h-16 rounded-2xl gold-shimmer flex items-center justify-center shadow-2xl">
+                        <svg width="36" height="36" viewBox="0 0 20 20" fill="white">
+                            <path d="M10 4L15 8V12L10 16L5 12V8L10 4Z"/>
+                        </svg>
+                    </div>
+                    <span class="text-3xl font-extrabold tracking-tight text-white">Menu<span class="text-amber-400">QR</span></span>
+                </a>
+                
+                <!-- Headline -->
+                <h1 class="serif text-5xl lg:text-6xl text-white mb-6 leading-tight">
+                    Welcome to <br><i class="text-amber-500">MenuQR Africa!</i>
+                </h1>
+                
+                <p class="text-white/80 text-lg mb-12 leading-relaxed">
+                    Your email is verified and your account is ready. Let's set up your business and start creating amazing digital menus!
+                </p>
+                
+                <!-- Progress Steps - All Complete -->
+                <div class="space-y-6 mb-12">
+                    <div class="flex items-center gap-4">
+                        <div class="w-10 h-10 rounded-full success-gradient flex items-center justify-center flex-shrink-0 shadow-lg">
+                            <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <div class="text-white font-bold">Account Created</div>
+                            <div class="text-white/70 text-sm">✓ Completed</div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center gap-4">
+                        <div class="w-10 h-10 rounded-full success-gradient flex items-center justify-center flex-shrink-0 shadow-lg">
+                            <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <div class="text-white font-bold">Email Verified</div>
+                            <div class="text-white/70 text-sm">✓ Just completed!</div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center gap-4">
+                        <div class="w-10 h-10 rounded-full gold-shimmer flex items-center justify-center flex-shrink-0 shadow-lg">
+                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <div class="text-white font-bold">Complete Setup</div>
+                            <div class="text-amber-400 text-sm">Next: Business details</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Stats Cards -->
+                <div class="grid grid-cols-2 gap-4 mb-12">
+                    <div class="glass-effect rounded-2xl p-4">
+                        <div class="text-3xl font-bold text-white mb-1">5 min</div>
+                        <div class="text-white/70 text-sm">Setup time</div>
+                    </div>
+                    <div class="glass-effect rounded-2xl p-4">
+                        <div class="text-3xl font-bold text-white mb-1">24/7</div>
+                        <div class="text-white/70 text-sm">Support</div>
+                    </div>
+                </div>
+                
+                <!-- Security Badge -->
+                <div class="glass-effect rounded-2xl p-6 floating">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-full bg-green-500/20 flex items-center justify-center flex-shrink-0">
+                            <svg class="w-6 h-6 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <p class="text-white/90 text-sm font-bold">Account Verified & Secure</p>
+                            <p class="text-white/60 text-xs">Your data is protected with enterprise-grade encryption</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Right Side - Success Content -->
+        <div class="flex items-center justify-center p-6 lg:p-12 bg-gradient-to-br from-gray-50 to-white">
+            <div class="w-full max-w-md">
+                
+                <!-- Mobile Logo -->
+                <a href="index.html" class="lg:hidden flex items-center justify-center gap-3 mb-8">
+                    <div class="w-12 h-12 rounded-xl gold-shimmer flex items-center justify-center shadow-lg">
+                        <svg width="28" height="28" viewBox="0 0 20 20" fill="white">
+                            <path d="M10 4L15 8V12L10 16L5 12V8L10 4Z"/>
+                        </svg>
+                    </div>
+                    <span class="text-2xl font-extrabold tracking-tight">Menu<span class="text-amber-600">QR</span></span>
+                </a>
+                
+                <!-- Success Icon with Pulse Rings -->
+                <div class="flex justify-center mb-8">
+                    <div class="relative">
+                        <!-- Pulse rings -->
+                        <div class="absolute inset-0 rounded-full bg-green-400 opacity-20 pulse-ring"></div>
+                        <div class="absolute inset-0 rounded-full bg-green-400 opacity-20 pulse-ring-delay"></div>
+                        
+                        <!-- Main circle -->
+                        <div class="relative w-32 h-32 rounded-full bg-gradient-to-br from-green-100 to-emerald-100 flex items-center justify-center scale-in shadow-2xl">
+                            <!-- Checkmark SVG -->
+                            <svg class="w-20 h-20" viewBox="0 0 52 52">
+                                <circle cx="26" cy="26" r="25" fill="none" stroke="#10B981" stroke-width="2"/>
+                                <path class="checkmark" fill="none" stroke="#10B981" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" d="M14 27l9 9 16-16"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Header -->
+                <div class="mb-8 text-center fade-in fade-in-delay-1">
+                    <h2 class="serif text-4xl lg:text-5xl font-bold text-gray-900 mb-3">Email Verified!</h2>
+                    <p class="text-gray-600 text-lg">Your account is ready to go 🎉</p>
+                </div>
+                
+                <!-- Progress Cards -->
+                <div class="space-y-4 mb-8 fade-in fade-in-delay-2">
+                    <div class="bg-white rounded-2xl p-5 shadow-lg border-2 border-green-200">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-full success-gradient flex items-center justify-center flex-shrink-0">
+                                <svg class="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                </svg>
+                            </div>
+                            <div class="flex-1">
+                                <div class="font-bold text-gray-900 text-lg">Account Created</div>
+                                <div class="text-sm text-green-600">Your details are saved</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white rounded-2xl p-5 shadow-lg border-2 border-green-200">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-full success-gradient flex items-center justify-center flex-shrink-0">
+                                <svg class="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                </svg>
+                            </div>
+                            <div class="flex-1">
+                                <div class="font-bold text-gray-900 text-lg">Email Verified ✓</div>
+                                <div class="text-sm text-green-600">Just completed!</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl p-5 shadow-lg border-2 border-amber-300">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-full gold-shimmer flex items-center justify-center flex-shrink-0">
+                                <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                                </svg>
+                            </div>
+                            <div class="flex-1">
+                                <div class="font-bold text-gray-900 text-lg">Complete Setup</div>
+                                <div class="text-sm text-amber-600 font-bold">Next: Business details →</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Redirect Message -->
+                <div class="text-center mb-6 fade-in fade-in-delay-3">
+                    <p class="text-gray-600 mb-3">
+                        Redirecting to setup in <span id="countdown" class="font-bold text-green-600 text-xl">3</span> seconds...
+                    </p>
+                    
+                    <!-- Progress Bar -->
+                    <div class="w-full bg-gray-200 rounded-full h-3 overflow-hidden shadow-inner">
+                        <div class="success-gradient h-3 rounded-full progress-bar"></div>
+                    </div>
+                </div>
+                
+                <!-- Manual Continue Button -->
+                <button 
+                    onclick="continueToOnboarding()" 
+                    class="w-full gold-shimmer text-white font-bold py-4 rounded-xl transition-all duration-300 shadow-xl hover:shadow-2xl hover:scale-[1.02] uppercase tracking-wider mb-6 fade-in fade-in-delay-3"
+                >
+                    Continue to Setup →
+                </button>
+                
+                <!-- Help Text -->
+                <div class="text-center text-sm text-gray-500 fade-in fade-in-delay-3">
+                    <svg class="w-4 h-4 inline-block text-green-600 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                    </svg>
+                    Your account is verified and secure
+                </div>
+                
+            </div>
+        </div>
+        
+    </div>
+
+    <!-- Supabase & Config -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="config.js"></script>
+    <script src="auth-utils.js"></script>
+    
+    <!-- Main Script -->
+    <script>
+        // ============================================
+        // VERIFY EMAIL CONFIRMATION & UPDATE PROFILE
+        // ============================================
+        
+        // Show loading state initially
+        console.log('Email verification handler loaded');
+        
+        // Listen for auth state changes (Supabase will fire this after processing the token)
+        const { data: authListener } = window.supabase.auth.onAuthStateChange(async (event, session) => {
+            console.log('Auth state change:', event, session);
+            
+            // Only process on SIGNED_IN or TOKEN_REFRESHED events
+            if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED') {
+                await handleVerification(session);
+            }
+        });
+        
+        // Also check immediately in case user is already signed in
+        setTimeout(async () => {
+            const { data: { session } } = await window.supabase.auth.getSession();
+            if (session) {
+                await handleVerification(session);
+            }
+        }, 500);
+        
+        async function handleVerification(session) {
+            try {
+                if (!session) {
+                    console.error('No session provided');
+                    showError('Verification session not found. Please try signing in.');
+                    setTimeout(() => {
+                        window.location.href = 'login.html';
+                    }, 3000);
+                    return;
+                }
+                
+                console.log('Session found:', session.user.id);
+                
+                // Check if email is confirmed in Supabase auth
+                const emailConfirmed = session.user.email_confirmed_at !== null;
+                
+                if (!emailConfirmed) {
+                    console.error('Email not confirmed in Supabase');
+                    showError('Email verification incomplete. Please check your email.');
+                    setTimeout(() => {
+                        window.location.href = 'verify-email.html?email=' + session.user.email;
+                    }, 3000);
+                    return;
+                }
+                
+                console.log('Email confirmed in Supabase auth ✓');
+                
+                // Update profiles table: email_verified = true (Gate 1)
+                const result = await window.MenuQRAuth.markEmailVerified(session.user.id);
+                
+                if (result.success) {
+                    console.log('Profile updated: email_verified = true ✓');
+                } else {
+                    console.error('Failed to update profile:', result.error);
+                    // Continue anyway - Supabase email is verified
+                }
+                
+                // Start countdown and redirect
+                startCountdown();
+                
+                // Unsubscribe from auth listener since we're done
+                if (authListener && authListener.subscription) {
+                    authListener.subscription.unsubscribe();
+                }
+                
+            } catch (error) {
+                console.error('Verification handler error:', error);
+                showError('An error occurred. Please try signing in.');
+                setTimeout(() => {
+                    window.location.href = 'login.html';
+                }, 3000);
+            }
+        }
+        
+        // ============================================
+        // COUNTDOWN & REDIRECT
+        // ============================================
+        
+        function startCountdown() {
+            let seconds = 3;
+            const countdownEl = document.getElementById('countdown');
+            
+            const interval = setInterval(() => {
+                seconds--;
+                countdownEl.textContent = seconds;
+                
+                if (seconds <= 0) {
+                    clearInterval(interval);
+                    continueToOnboarding();
+                }
+            }, 1000);
+        }
+        
+        function continueToOnboarding() {
+            console.log('Redirecting to onboarding...');
+            window.location.href = 'onboarding.html';
+        }
+        
+        // ============================================
+        // ERROR HANDLING
+        // ============================================
+        
+        function showError(message) {
+            const notification = document.createElement('div');
+            notification.className = 'fixed top-4 right-4 bg-red-50 border-l-4 border-red-500 rounded-lg p-4 shadow-lg max-w-md z-50';
+            notification.innerHTML = `
+                <div class="flex items-start gap-3">
+                    <svg class="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                    </svg>
+                    <p class="text-sm text-red-800 font-medium">${message}</p>
+                </div>
+            `;
+            document.body.appendChild(notification);
+        }
+    </script>
+
+</body>
+</html>
