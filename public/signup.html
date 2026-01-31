@@ -319,9 +319,21 @@
             const passwordFields = document.getElementById('passwordFields');
             if (passwordFields) {
                 passwordFields.style.display = 'none';
-                // Remove required attribute from password fields
-                document.getElementById('password').required = false;
-                document.getElementById('confirmPassword').required = false;
+                
+                // Clear password values and remove required attribute
+                const passwordField = document.getElementById('password');
+                const confirmPasswordField = document.getElementById('confirmPassword');
+                
+                passwordField.value = '';
+                confirmPasswordField.value = '';
+                passwordField.required = false;
+                confirmPasswordField.required = false;
+                
+                // Also disable the fields to prevent any input
+                passwordField.disabled = true;
+                confirmPasswordField.disabled = true;
+                
+                console.log('✅ Password fields hidden and disabled for OAuth mode');
             }
             
             // Change button text
@@ -428,30 +440,32 @@
             formContainer.insertBefore(alertDiv, form);
         }
         
-        // Password strength indicator
+        // Password strength indicator (only for non-OAuth mode)
         const passwordInput = document.getElementById('password');
-        passwordInput.addEventListener('input', (e) => {
-            const password = e.target.value;
-            let strengthHTML = '';
-            
-            if (password.length === 0) {
-                strengthHTML = '';
-            } else if (password.length < 8) {
-                strengthHTML = '<span class="text-red-500 text-xs">⚠️ Weak - At least 8 characters required</span>';
-            } else if (password.length < 12) {
-                strengthHTML = '<span class="text-yellow-500 text-xs">⚡ Good - Consider adding more characters</span>';
-            } else {
-                strengthHTML = '<span class="text-green-500 text-xs">✓ Strong password</span>';
-            }
-            
-            let strengthDiv = passwordInput.parentElement.querySelector('.password-strength');
-            if (!strengthDiv) {
-                strengthDiv = document.createElement('div');
-                strengthDiv.className = 'password-strength mt-2';
-                passwordInput.parentElement.appendChild(strengthDiv);
-            }
-            strengthDiv.innerHTML = strengthHTML;
-        });
+        if (!isOAuthMode) {
+            passwordInput.addEventListener('input', (e) => {
+                const password = e.target.value;
+                let strengthHTML = '';
+                
+                if (password.length === 0) {
+                    strengthHTML = '';
+                } else if (password.length < 8) {
+                    strengthHTML = '<span class="text-red-500 text-xs">⚠️ Weak - At least 8 characters required</span>';
+                } else if (password.length < 12) {
+                    strengthHTML = '<span class="text-yellow-500 text-xs">⚡ Good - Consider adding more characters</span>';
+                } else {
+                    strengthHTML = '<span class="text-green-500 text-xs">✓ Strong password</span>';
+                }
+                
+                let strengthDiv = passwordInput.parentElement.querySelector('.password-strength');
+                if (!strengthDiv) {
+                    strengthDiv = document.createElement('div');
+                    strengthDiv.className = 'password-strength mt-2';
+                    passwordInput.parentElement.appendChild(strengthDiv);
+                }
+                strengthDiv.innerHTML = strengthHTML;
+            });
+        }
         
         // ============================================
         // FORM VALIDATION
@@ -470,16 +484,20 @@
                 return false;
             }
             
-            // Password validation
-            if (password.length < 8) {
-                showError('Password must be at least 8 characters long');
-                return false;
-            }
-            
-            // Password match
-            if (password !== confirmPassword) {
-                showError('Passwords do not match');
-                return false;
+            // Password validation (SKIP if OAuth mode)
+            if (!isOAuthMode) {
+                if (password.length < 8) {
+                    showError('Password must be at least 8 characters long');
+                    return false;
+                }
+                
+                // Password match
+                if (password !== confirmPassword) {
+                    showError('Passwords do not match');
+                    return false;
+                }
+            } else {
+                console.log('OAuth mode: Skipping password validation');
             }
             
             // Terms acceptance
