@@ -461,7 +461,43 @@
         // ============================================
         
         // Check if OAuth user has a complete profile or needs to sign up
+        // ============================================
+        // OAUTH SIGN IN - ENHANCED DETECTION
+        // ============================================
+        
+        // Flag to prevent double-processing
+        let oauthCallbackProcessed = false;
+        
+        // Check if we're on an OAuth callback
+        function isOAuthCallback() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const hashParams = new URLSearchParams(window.location.hash.substring(1));
+            
+            const hasCode = urlParams.has('code');
+            const hasAccessToken = hashParams.has('access_token') || window.location.hash.includes('access_token');
+            const hasError = urlParams.has('error') || hashParams.has('error');
+            
+            console.log('OAuth callback check:', {
+                hasCode,
+                hasAccessToken,
+                hasError,
+                fullURL: window.location.href,
+                search: window.location.search,
+                hash: window.location.hash
+            });
+            
+            return hasCode || hasAccessToken || hasError;
+        }
+        
         async function handleOAuthCallback() {
+            if (oauthCallbackProcessed) {
+                console.log('OAuth callback already processed, skipping');
+                return;
+            }
+            
+            oauthCallbackProcessed = true;
+            console.log('=== PROCESSING OAUTH CALLBACK ===');
+            
             try {
                 // Show loading state
                 const form = document.querySelector('form');
@@ -494,9 +530,20 @@
                     form.parentElement.insertBefore(alertDiv, form);
                 }
                 
-                const { data: { user } } = await window.supabase.auth.getUser();
+                // Wait a bit for Supabase to process the session
+                console.log('Waiting for session to be established...');
+                await new Promise(resolve => setTimeout(resolve, 1000));
                 
-                if (!user) return; // No user session
+                const { data: { user }, error: userError } = await window.supabase.auth.getUser();
+                
+                console.log('User check result:', { user: user?.email, error: userError });
+                
+                if (userError || !user) {
+                    console.error('No user session after OAuth callback:', userError);
+                    showError('Authentication failed. Please try again.');
+                    oauthCallbackProcessed = false;
+                    return;
+                }
                 
                 console.log('OAuth user authenticated:', user.email);
                 
@@ -507,9 +554,12 @@
                     .eq('id', user.id)
                     .single();
                 
+                console.log('Profile check result:', { profile, error: error?.code });
+                
                 if (error && error.code !== 'PGRST116') {
-                    // PGRST116 = "not found" - that's expected for new users
                     console.error('Error checking profile:', error);
+                    showError('Error loading profile. Please try again.');
+                    oauthCallbackProcessed = false;
                     return;
                 }
                 
@@ -517,7 +567,6 @@
                 if (!profile || !profile.business_name) {
                     console.log('No profile or incomplete profile - redirecting to signup');
                     
-                    // Update message
                     if (alertDiv) {
                         alertDiv.className = 'bg-amber-50 border-l-4 border-amber-500 p-4 rounded-xl mb-6';
                         alertDiv.innerHTML = `
@@ -539,7 +588,7 @@
                     return;
                 }
                 
-                console.log('Complete profile found');
+                console.log('Complete profile found:', profile);
                 
                 // Update email_verified if it's false (OAuth users are always verified)
                 if (!profile.email_verified) {
@@ -554,7 +603,6 @@
                 if (!profile.firstlogin) {
                     console.log('First login incomplete, redirecting to onboarding');
                     
-                    // Update message
                     if (alertDiv) {
                         alertDiv.className = 'bg-green-50 border-l-4 border-green-500 p-4 rounded-xl mb-6';
                         alertDiv.innerHTML = `
@@ -576,7 +624,6 @@
                 } else {
                     console.log('User fully onboarded, redirecting to dashboard');
                     
-                    // Update message
                     if (alertDiv) {
                         alertDiv.className = 'bg-green-50 border-l-4 border-green-500 p-4 rounded-xl mb-6';
                         alertDiv.innerHTML = `
@@ -600,36 +647,59 @@
             } catch (error) {
                 console.error('Error in OAuth callback:', error);
                 showError('An error occurred during sign in. Please try again.');
+                oauthCallbackProcessed = false;
             }
         }
         
-        // Listen for OAuth redirect/callback using auth state change
+        // STRATEGY 1: Listen for auth state changes
+        console.log('Setting up auth state change listener...');
         window.supabase.auth.onAuthStateChange(async (event, session) => {
-            console.log('Auth state changed:', event);
+            console.log('=== AUTH STATE CHANGE ===', event, session?.user?.email);
             
-            if (event === 'SIGNED_IN' && session) {
-                // Check if we just came back from OAuth
-                const urlParams = new URLSearchParams(window.location.search);
-                const hasOAuthParams = urlParams.has('code') || window.location.hash.includes('access_token');
-                
-                if (hasOAuthParams) {
-                    console.log('OAuth callback detected via auth state change');
-                    await handleOAuthCallback();
-                }
+            if (event === 'SIGNED_IN' && session && isOAuthCallback()) {
+                console.log('OAuth callback detected via auth state change');
+                await handleOAuthCallback();
             }
         });
         
-        // Also check on initial load in case we missed the event
+        // STRATEGY 2: Check immediately on page load
+        console.log('Checking for OAuth callback on page load...');
+        if (isOAuthCallback()) {
+            console.log('OAuth callback params detected, waiting for session...');
+            
+            // Try immediately
+            setTimeout(async () => {
+                const { data: { session } } = await window.supabase.auth.getSession();
+                console.log('Session check after 500ms:', !!session);
+                if (session && !oauthCallbackProcessed) {
+                    console.log('OAuth callback detected on immediate check');
+                    await handleOAuthCallback();
+                }
+            }, 500);
+            
+            // Try again after 2 seconds if still not processed
+            setTimeout(async () => {
+                if (!oauthCallbackProcessed) {
+                    const { data: { session } } = await window.supabase.auth.getSession();
+                    console.log('Session check after 2s:', !!session);
+                    if (session) {
+                        console.log('OAuth callback detected on delayed check');
+                        await handleOAuthCallback();
+                    }
+                }
+            }, 2000);
+        }
+        
+        // STRATEGY 3: Window load event as final fallback
         window.addEventListener('load', async function() {
-            const { data: { session } } = await window.supabase.auth.getSession();
-            
-            // Check if we just came back from OAuth
-            const urlParams = new URLSearchParams(window.location.search);
-            const hasOAuthParams = urlParams.has('code') || window.location.hash.includes('access_token');
-            
-            if (session && hasOAuthParams) {
-                console.log('OAuth callback detected on page load');
-                await handleOAuthCallback();
+            console.log('Window load event fired');
+            if (isOAuthCallback() && !oauthCallbackProcessed) {
+                const { data: { session } } = await window.supabase.auth.getSession();
+                console.log('Session check on window load:', !!session);
+                if (session) {
+                    console.log('OAuth callback detected on window load');
+                    await handleOAuthCallback();
+                }
             }
         });
         
