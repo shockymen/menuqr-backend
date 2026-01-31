@@ -331,20 +331,30 @@ async function markEmailVerified(userId) {
  * @param {string} userId - User ID
  * @returns {Promise<Object>} Result
  */
-async function markOnboardingComplete(userId) {
+async function markOnboardingComplete(onboardingData = {}) {
   try {
+    // Get current user
+    const { data: { user }, error: userError } = await window.supabase.auth.getUser();
+    
+    if (userError || !user) {
+      throw new Error('Not authenticated');
+    }
+    
+    // Update profile with onboarding completion and optional data
     const { data, error } = await window.supabase
       .from('profiles')
       .update({
         firstlogin: true,
-        onboarding_completed_at: new Date().toISOString()
+        onboarding_completed_at: new Date().toISOString(),
+        onboarding_data: onboardingData // Store any onboarding preferences
       })
-      .eq('id', userId)
+      .eq('id', user.id)
       .select()
       .single();
     
     if (error) throw error;
     
+    console.log('✅ Onboarding marked complete');
     return { success: true, data };
   } catch (error) {
     console.error('Mark onboarding complete error:', error);
@@ -362,37 +372,6 @@ async function markOnboardingComplete(userId) {
  * Call this on protected pages
  * @returns {Promise<boolean>} True if user can access page, false if redirected
  */
-async function enforceAuthGates() {
-  try {
-    // Gate 0: Check authentication
-    const authenticated = await isAuthenticated();
-    if (!authenticated) {
-      window.location.href = 'login.html';
-      return false;
-    }
-    
-    // Gate 1: Check email verification
-    const emailVerified = await isEmailVerified();
-    if (!emailVerified) {
-      window.location.href = 'verify-email.html';
-      return false;
-    }
-    
-    // Gate 2: Check onboarding completion
-    const onboardingComplete = await isOnboardingComplete();
-    if (!onboardingComplete) {
-      window.location.href = 'onboarding.html';
-      return false;
-    }
-    
-    // All gates passed
-    return true;
-  } catch (error) {
-    console.error('Error enforcing auth gates:', error);
-    window.location.href = 'login.html';
-    return false;
-  }
-}
 
 /**
  * Redirect to login if already authenticated (for signup/login pages)
@@ -429,6 +408,65 @@ async function redirectIfAuthenticated() {
     // User is fully set up, go to dashboard
     console.log('redirectIfAuthenticated: All checks passed, redirecting to dashboard.html');
     window.location.href = 'dashboard.html';
+  }
+}
+
+/**
+ * Enforce all authentication gates - redirect if any check fails
+ * Call this at the top of EVERY protected page
+ * @returns {Promise<Object>} User and profile data if all gates pass
+ */
+async function enforceAuthGates() {
+  try {
+    // GATE 1: Check if user is authenticated
+    const { data: { user }, error: userError } = await window.supabase.auth.getUser();
+    
+    if (userError || !user) {
+      console.log('🚫 GATE 1 FAILED: Not authenticated, redirecting to login');
+      window.location.href = 'login.html';
+      throw new Error('Not authenticated'); // Stop execution
+    }
+    
+    console.log('✅ GATE 1 PASSED: User authenticated:', user.email);
+    
+    // GATE 2: Check if profile exists and is complete (has business_name)
+    const { data: profile, error: profileError } = await window.supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', user.id)
+      .single();
+    
+    if (profileError || !profile) {
+      console.log('🚫 GATE 2 FAILED: No profile found, redirecting to signup');
+      window.location.href = `signup.html?email=${encodeURIComponent(user.email)}&oauth=true`;
+      throw new Error('No profile');
+    }
+    
+    if (!profile.business_name) {
+      console.log('🚫 GATE 2 FAILED: Incomplete profile (missing business_name), redirecting to signup');
+      window.location.href = `signup.html?email=${encodeURIComponent(user.email)}&oauth=true`;
+      throw new Error('Incomplete profile');
+    }
+    
+    console.log('✅ GATE 2 PASSED: Profile complete');
+    
+    // GATE 3: Check if onboarding is complete
+    if (!profile.firstlogin) {
+      console.log('🚫 GATE 3 FAILED: Onboarding not complete, redirecting to onboarding');
+      window.location.href = 'onboarding.html';
+      throw new Error('Onboarding incomplete');
+    }
+    
+    console.log('✅ GATE 3 PASSED: Onboarding complete');
+    console.log('🎉 ALL GATES PASSED - User can access this page');
+    
+    // Return user and profile data for use in the page
+    return { user, profile };
+    
+  } catch (error) {
+    // Error thrown means redirect happened, stop page execution
+    console.log('Auth gate check failed:', error.message);
+    throw error;
   }
 }
 

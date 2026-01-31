@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - MenuQR Africa</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <style>
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    
+    <!-- Supabase JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <!-- Config -->
+    <script src="config.js"></script>
+    
+    <!-- Auth Utils -->
+    <script src="auth-utils.js"></script>
+    
+    <!-- 🔐 ROUTE PROTECTION - THIS IS CRITICAL! -->
+    <script>
+        (async function() {
+            try {
+                console.log('=== ENFORCING AUTH GATES ===');
+                
+                // Enforce ALL THREE gates
+                const { user, profile } = await window.MenuQRAuth.enforceAuthGates();
+                
+                console.log('✅ All gates passed - loading dashboard');
+                console.log('User:', user.email);
+                console.log('Business:', profile.business_name);
+                
+                // Store user data for use in page
+                window.currentUser = user;
+                window.currentProfile = profile;
+                
+                // Initialize page
+                document.addEventListener('DOMContentLoaded', initDashboard);
+                
+            } catch (error) {
+                // User was redirected, stop execution
+                console.log('Auth gate failed, user redirected');
+            }
+        })();
+    </script>
+    
+    <!-- Navigation -->
+    <nav class="bg-white shadow-sm border-b border-gray-200">
+        <div class="container mx-auto px-4">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center gap-3">
+                    <div class="text-2xl font-bold bg-gradient-to-r from-amber-600 to-orange-600 bg-clip-text text-transparent">
+                        MenuQR Africa
+                    </div>
+                </div>
+                
+                <div class="flex items-center gap-4">
+                    <span id="user-name" class="text-sm text-gray-600"></span>
+                    <button onclick="signOut()" class="px-4 py-2 text-sm text-gray-700 hover:text-gray-900 font-medium">
+                        Sign Out
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Main Content -->
+    <div class="container mx-auto px-4 py-8">
+        
+        <!-- Welcome Section -->
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-900 mb-2">
+                Welcome back, <span id="business-name"></span>! 👋
+            </h1>
+            <p class="text-gray-600">Manage your digital menus and QR codes</p>
+        </div>
+        
+        <!-- Stats Cards -->
+        <div class="grid md:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+                <div class="flex items-center justify-between mb-2">
+                    <div class="text-2xl">📱</div>
+                    <div class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">This Week</div>
+                </div>
+                <div class="text-2xl font-bold text-gray-900 mb-1">0</div>
+                <div class="text-sm text-gray-600">QR Code Scans</div>
+            </div>
+            
+            <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+                <div class="flex items-center justify-between mb-2">
+                    <div class="text-2xl">🍽️</div>
+                    <div class="text-xs text-green-500 bg-green-50 px-2 py-1 rounded">Active</div>
+                </div>
+                <div class="text-2xl font-bold text-gray-900 mb-1">0</div>
+                <div class="text-sm text-gray-600">Menu Items</div>
+            </div>
+            
+            <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+                <div class="flex items-center justify-between mb-2">
+                    <div class="text-2xl">⭐</div>
+                    <div class="text-xs text-amber-500 bg-amber-50 px-2 py-1 rounded">Popular</div>
+                </div>
+                <div class="text-2xl font-bold text-gray-900 mb-1">-</div>
+                <div class="text-sm text-gray-600">Top Viewed Item</div>
+            </div>
+            
+            <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+                <div class="flex items-center justify-between mb-2">
+                    <div class="text-2xl">🌍</div>
+                    <div class="text-xs text-blue-500 bg-blue-50 px-2 py-1 rounded">Languages</div>
+                </div>
+                <div class="text-2xl font-bold text-gray-900 mb-1">1</div>
+                <div class="text-sm text-gray-600">Active Languages</div>
+            </div>
+        </div>
+        
+        <!-- Quick Actions -->
+        <div class="grid md:grid-cols-3 gap-6 mb-8">
+            
+            <!-- Create Menu -->
+            <div class="card-hover bg-gradient-to-br from-amber-500 to-orange-500 rounded-xl shadow-md p-8 text-white cursor-pointer">
+                <div class="text-4xl mb-4">📋</div>
+                <h3 class="text-xl font-bold mb-2">Create Your First Menu</h3>
+                <p class="text-amber-50 text-sm mb-4">Add categories and items to get started</p>
+                <button class="bg-white text-amber-600 px-4 py-2 rounded-lg font-semibold text-sm hover:bg-amber-50 transition">
+                    Start Creating →
+                </button>
+            </div>
+            
+            <!-- Generate QR Code -->
+            <div class="card-hover bg-white rounded-xl shadow-md p-8 border border-gray-200 cursor-pointer">
+                <div class="text-4xl mb-4">📱</div>
+                <h3 class="text-xl font-bold text-gray-900 mb-2">Generate QR Code</h3>
+                <p class="text-gray-600 text-sm mb-4">Create scannable codes for your tables</p>
+                <button class="bg-gray-900 text-white px-4 py-2 rounded-lg font-semibold text-sm hover:bg-gray-800 transition">
+                    Generate Code →
+                </button>
+            </div>
+            
+            <!-- Customize Design -->
+            <div class="card-hover bg-white rounded-xl shadow-md p-8 border border-gray-200 cursor-pointer">
+                <div class="text-4xl mb-4">🎨</div>
+                <h3 class="text-xl font-bold text-gray-900 mb-2">Customize Design</h3>
+                <p class="text-gray-600 text-sm mb-4">Match your brand colors and style</p>
+                <button class="bg-gray-900 text-white px-4 py-2 rounded-lg font-semibold text-sm hover:bg-gray-800 transition">
+                    Customize →
+                </button>
+            </div>
+            
+        </div>
+        
+        <!-- Recent Activity -->
+        <div class="bg-white rounded-xl shadow-sm p-8 border border-gray-200">
+            <h3 class="text-xl font-bold text-gray-900 mb-6">Recent Activity</h3>
+            
+            <div class="text-center py-12">
+                <div class="text-6xl mb-4">📊</div>
+                <h4 class="text-lg font-semibold text-gray-700 mb-2">No Activity Yet</h4>
+                <p class="text-gray-500">Start creating menus to see your activity here</p>
+            </div>
+        </div>
+        
+    </div>
+    
+    <!-- Footer -->
+    <footer class="bg-white border-t border-gray-200 mt-12">
+        <div class="container mx-auto px-4 py-6">
+            <div class="flex justify-between items-center text-sm text-gray-600">
+                <div>© 2025 MenuQR Africa. All rights reserved.</div>
+                <div class="flex gap-6">
+                    <a href="#" class="hover:text-gray-900">Help</a>
+                    <a href="#" class="hover:text-gray-900">Privacy</a>
+                    <a href="#" class="hover:text-gray-900">Terms</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+    
+    <script>
+        function initDashboard() {
+            console.log('Initializing dashboard...');
+            
+            // Display user info
+            if (window.currentProfile) {
+                document.getElementById('business-name').textContent = window.currentProfile.business_name;
+                document.getElementById('user-name').textContent = window.currentProfile.full_name || window.currentUser.email;
+            }
+            
+            console.log('Dashboard initialized successfully');
+        }
+        
+        async function signOut() {
+            if (confirm('Are you sure you want to sign out?')) {
+                console.log('Signing out...');
+                await window.MenuQRAuth.signout();
+            }
+        }
+    </script>
+    
+</body>
+</html>

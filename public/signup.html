@@ -255,9 +255,26 @@
     
     <!-- Check if already authenticated -->
     <script>
-        // Redirect if user is already logged in
+        // Redirect if user is already logged in (UNLESS coming from OAuth signup)
         (async function() {
+            // Check if this is OAuth signup mode
+            const urlParams = new URLSearchParams(window.location.search);
+            const isOAuthMode = urlParams.get('oauth') === 'true';
+            
+            console.log('Signup page auth check:', {
+                isOAuthMode,
+                url: window.location.href
+            });
+            
+            // Skip auth redirect if OAuth mode - user needs to complete business info
+            if (isOAuthMode) {
+                console.log('🛑 OAuth mode detected, skipping auth redirect (user needs to fill signup form)');
+                return;
+            }
+            
+            // Normal signup - redirect if already authenticated
             if (await window.MenuQRAuth.isAuthenticated()) {
+                console.log('User already authenticated, redirecting away from signup');
                 // User is logged in, redirect based on their state
                 await window.MenuQRAuth.redirectIfAuthenticated();
             }
@@ -282,8 +299,15 @@
         const isOAuthMode = urlParams.get('oauth') === 'true';
         const oauthEmail = urlParams.get('email');
         
+        console.log('=== SIGNUP PAGE LOADED ===');
+        console.log('Full URL:', window.location.href);
+        console.log('URL Search:', window.location.search);
+        console.log('isOAuthMode:', isOAuthMode);
+        console.log('oauthEmail:', oauthEmail);
+        console.log('oauth param value:', urlParams.get('oauth'));
+        
         if (isOAuthMode && oauthEmail) {
-            console.log('OAuth mode detected, email:', oauthEmail);
+            console.log('✅ OAuth mode detected, email:', oauthEmail);
             
             // Auto-fill email field
             const emailField = document.getElementById('email');
@@ -315,6 +339,12 @@
                 Verified by Google
             `;
             emailContainer.appendChild(oauthBadge);
+        } else if (isOAuthMode && !oauthEmail) {
+            console.warn('⚠️ OAuth mode is true but email parameter is missing!');
+        } else if (!isOAuthMode && oauthEmail) {
+            console.warn('⚠️ Email parameter present but oauth parameter is not true!');
+        } else {
+            console.log('ℹ️ Normal signup mode (not OAuth)');
         }
         
         // ============================================
@@ -493,6 +523,11 @@
         form.addEventListener('submit', async function(e) {
             e.preventDefault();
             
+            console.log('=== SIGNUP FORM SUBMITTED ===');
+            console.log('isOAuthMode:', isOAuthMode);
+            console.log('oauthEmail:', oauthEmail);
+            console.log('URL params:', window.location.search);
+            
             // Validate form
             if (!validateForm()) {
                 return;
@@ -513,8 +548,11 @@
                     country: document.getElementById('country').value
                 };
                 
+                console.log('Form data collected:', { ...formData, password: formData.password ? '[HIDDEN]' : null });
+                
                 // OAuth mode: user is already authenticated, just create/update profile
                 if (isOAuthMode) {
+                    console.log('✅ OAuth mode detected - taking OAuth flow');
                     console.log('OAuth mode: Creating profile for authenticated user');
                     
                     // Get current authenticated user
@@ -551,12 +589,17 @@
                     // Show success and redirect to onboarding (skip email verification)
                     showSuccess('Registration complete! Setting up your account...');
                     
+                    console.log('🎯 OAuth flow: Redirecting to onboarding.html in 1.5 seconds');
+                    
                     setTimeout(() => {
+                        console.log('🚀 Executing redirect to onboarding.html');
                         window.location.href = 'onboarding.html';
                     }, 1500);
                     
                     return;
                 }
+                
+                console.log('❌ Not OAuth mode - taking normal email/password flow');
                 
                 // Normal email/password signup flow
                 // STEP 1: Check if email already exists in profiles table
@@ -589,8 +632,11 @@
                 // Show success message
                 showSuccess('Account created! Please check your email to verify your account.');
                 
+                console.log('🎯 Normal flow: Redirecting to verify-email.html in 2 seconds');
+                
                 // Redirect to email verification page after 2 seconds
                 setTimeout(() => {
+                    console.log('🚀 Executing redirect to verify-email.html');
                     window.location.href = `verify-email.html?email=${encodeURIComponent(formData.email)}`;
                 }, 2000);
                 
