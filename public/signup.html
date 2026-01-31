@@ -477,8 +477,30 @@
                     country: document.getElementById('country').value
                 };
                 
-                // Call Supabase Auth signup
+                // STEP 1: Check if email already exists in profiles table
+                const { data: existingUser, error: checkError } = await window.supabase
+                    .from('profiles')
+                    .select('id')
+                    .eq('email', formData.email)
+                    .maybeSingle();
+                
+                if (checkError && checkError.code !== 'PGRST116') {
+                    // PGRST116 = no rows returned (this is fine)
+                    console.error('Error checking email:', checkError);
+                    throw new Error('Unable to verify email. Please try again.');
+                }
+                
+                if (existingUser) {
+                    // Email already exists!
+                    throw new Error('This email is already registered. Please sign in instead or use a different email.');
+                }
+                
+                // STEP 2: Proceed with signup
                 const result = await signupUser(formData);
+                
+                if (!result.success) {
+                    throw new Error(result.error);
+                }
                 
                 console.log('Signup successful:', result);
                 
@@ -493,7 +515,26 @@
                 
             } catch (error) {
                 console.error('Signup error:', error);
-                showError(error.message || 'Something went wrong. Please try again.');
+                
+                // Handle specific error types
+                let errorMessage = error.message || 'Something went wrong. Please try again.';
+                
+                // Rate limit error
+                if (errorMessage.includes('rate limit')) {
+                    errorMessage = 'Too many signup attempts. Please wait a few minutes and try again.';
+                }
+                
+                // Email already registered (caught by our check)
+                if (errorMessage.includes('already registered')) {
+                    errorMessage = 'This email is already registered. Please <a href="login.html" class="underline font-bold">sign in</a> instead.';
+                }
+                
+                // Email service error
+                if (errorMessage.includes('Email') || errorMessage.includes('email service')) {
+                    errorMessage = 'Email service error. Please try again in a few minutes.';
+                }
+                
+                showError(errorMessage);
                 setLoading(false);
             }
         });

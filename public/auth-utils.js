@@ -130,6 +130,7 @@ async function signup(email, password, metadata = {}) {
       const { error: profileError } = await window.supabase
         .from('profiles')
         .update({
+          email: email, // Add email to profile
           full_name: metadata.full_name,
           phone: metadata.phone,
           country: metadata.country,
@@ -469,4 +470,4 @@ window.MenuQRAuth = {
   
   // Event listeners
   onAuthStateChange
-};
+}; 
