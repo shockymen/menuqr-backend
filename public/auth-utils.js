@@ -225,7 +225,7 @@ async function signout() {
 async function resetPassword(email) {
   try {
     const { error } = await window.supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/login.html`
+      redirectTo: `${window.location.origin}/reset-password.html`
     });
     
     if (error) throw error;
@@ -470,4 +470,4 @@ window.MenuQRAuth = {
   
   // Event listeners
   onAuthStateChange
-}; 
+};
