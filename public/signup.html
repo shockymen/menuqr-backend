@@ -189,7 +189,7 @@
                     </div>
                     
                     <!-- Password & Confirm - Two Column -->
-                    <div class="grid grid-cols-2 gap-4">
+                    <div id="passwordFields" class="grid grid-cols-2 gap-4">
                         <div>
                             <label class="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-2">Password</label>
                             <input type="password" id="password" required placeholder="Min 8 characters" minlength="8" class="w-full px-4 py-3.5 rounded-xl border-2 border-gray-200 focus:border-amber-500 focus:ring-4 focus:ring-amber-500/10 outline-none transition text-sm">
@@ -231,21 +231,13 @@
                     
                 </form>
                 
-                <!-- Divider -->
-                <div class="relative my-8">
-                    <div class="absolute inset-0 flex items-center">
-                        <div class="w-full border-t border-gray-200"></div>
-                    </div>
-                    <div class="relative flex justify-center text-xs">
-                        <span class="px-4 bg-white text-gray-400 uppercase tracking-wider font-semibold">Or</span>
-                    </div>
-                </div>
-                
                 <!-- Login Link -->
-                <p class="text-center text-sm text-gray-600">
-                    Already have an account? 
-                    <a href="login.html" class="text-amber-600 hover:text-amber-700 font-bold">Sign In →</a>
-                </p>
+                <div class="mt-8">
+                    <p class="text-center text-sm text-gray-600">
+                        Already have an account? 
+                        <a href="login.html" class="text-amber-600 hover:text-amber-700 font-bold">Sign In →</a>
+                    </p>
+                </div>
                 
             </div>
         </div>
@@ -280,6 +272,50 @@
         
         // Load routes from config (for redirects)
         const ROUTES = window.MENUQR_CONFIG.ROUTES;
+        
+        // ============================================
+        // OAUTH MODE HANDLING
+        // ============================================
+        
+        // Check if this is OAuth signup (from Google/Facebook redirect)
+        const urlParams = new URLSearchParams(window.location.search);
+        const isOAuthMode = urlParams.get('oauth') === 'true';
+        const oauthEmail = urlParams.get('email');
+        
+        if (isOAuthMode && oauthEmail) {
+            console.log('OAuth mode detected, email:', oauthEmail);
+            
+            // Auto-fill email field
+            const emailField = document.getElementById('email');
+            emailField.value = decodeURIComponent(oauthEmail);
+            emailField.readOnly = true;
+            emailField.classList.add('bg-gray-50', 'cursor-not-allowed');
+            
+            // Hide password fields
+            const passwordFields = document.getElementById('passwordFields');
+            if (passwordFields) {
+                passwordFields.style.display = 'none';
+                // Remove required attribute from password fields
+                document.getElementById('password').required = false;
+                document.getElementById('confirmPassword').required = false;
+            }
+            
+            // Change button text
+            const submitButton = document.querySelector('button[type="submit"]');
+            submitButton.innerHTML = 'Complete Registration →';
+            
+            // Add OAuth badge
+            const emailContainer = emailField.parentElement;
+            const oauthBadge = document.createElement('p');
+            oauthBadge.className = 'text-xs text-green-600 mt-2 flex items-center gap-1';
+            oauthBadge.innerHTML = `
+                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                </svg>
+                Verified by Google
+            `;
+            emailContainer.appendChild(oauthBadge);
+        }
         
         // ============================================
         // FORM HANDLING
@@ -466,10 +502,10 @@
             setLoading(true);
             
             try {
-                // Get ALL form values (all 9 fields)
+                // Get ALL form values
                 const formData = {
                     email: document.getElementById('email').value,
-                    password: document.getElementById('password').value,
+                    password: isOAuthMode ? null : document.getElementById('password').value,
                     fullName: document.getElementById('fullName').value,
                     businessName: document.getElementById('businessName').value,
                     businessType: document.getElementById('businessType').value,
@@ -477,6 +513,52 @@
                     country: document.getElementById('country').value
                 };
                 
+                // OAuth mode: user is already authenticated, just create/update profile
+                if (isOAuthMode) {
+                    console.log('OAuth mode: Creating profile for authenticated user');
+                    
+                    // Get current authenticated user
+                    const { data: { user }, error: userError } = await window.supabase.auth.getUser();
+                    
+                    if (userError || !user) {
+                        throw new Error('Authentication session expired. Please try logging in with Google again.');
+                    }
+                    
+                    // Create or update profile with UPSERT (handles trigger-created profiles)
+                    const { error: profileError } = await window.supabase
+                        .from('profiles')
+                        .upsert({
+                            id: user.id,
+                            email: formData.email,
+                            email_verified: true,  // OAuth users are pre-verified
+                            firstlogin: false,     // Still needs onboarding
+                            full_name: formData.fullName,
+                            business_name: formData.businessName,
+                            business_type: formData.businessType,
+                            phone: formData.phone,
+                            country: formData.country
+                        }, {
+                            onConflict: 'id'
+                        });
+                    
+                    if (profileError) {
+                        console.error('Profile creation error:', profileError);
+                        throw new Error('Unable to create profile. Please try again.');
+                    }
+                    
+                    console.log('Profile created successfully for OAuth user');
+                    
+                    // Show success and redirect to onboarding (skip email verification)
+                    showSuccess('Registration complete! Setting up your account...');
+                    
+                    setTimeout(() => {
+                        window.location.href = 'onboarding.html';
+                    }, 1500);
+                    
+                    return;
+                }
+                
+                // Normal email/password signup flow
                 // STEP 1: Check if email already exists in profiles table
                 const { data: existingUser, error: checkError } = await window.supabase
                     .from('profiles')
@@ -508,7 +590,6 @@
                 showSuccess('Account created! Please check your email to verify your account.');
                 
                 // Redirect to email verification page after 2 seconds
-                // Use relative path (no leading slash) to stay on same domain
                 setTimeout(() => {
                     window.location.href = `verify-email.html?email=${encodeURIComponent(formData.email)}`;
                 }, 2000);

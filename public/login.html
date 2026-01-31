@@ -450,6 +450,78 @@
         // OAUTH SIGN IN
         // ============================================
         
+        // Check if OAuth user has a complete profile or needs to sign up
+        async function handleOAuthCallback() {
+            try {
+                const { data: { user } } = await window.supabase.auth.getUser();
+                
+                if (!user) return; // No user session
+                
+                console.log('OAuth user authenticated:', user.email);
+                
+                // Check if profile exists AND is complete (has business_name)
+                const { data: profile, error } = await window.supabase
+                    .from('profiles')
+                    .select('id, email, business_name, email_verified, firstlogin')
+                    .eq('id', user.id)
+                    .single();
+                
+                if (error && error.code !== 'PGRST116') {
+                    // PGRST116 = "not found" - that's expected for new users
+                    console.error('Error checking profile:', error);
+                    return;
+                }
+                
+                // Profile doesn't exist OR exists but incomplete (no business_name)
+                if (!profile || !profile.business_name) {
+                    console.log('No profile or incomplete profile - redirecting to signup');
+                    showError('Please complete your registration to continue');
+                    
+                    setTimeout(() => {
+                        window.location.href = `signup.html?email=${encodeURIComponent(user.email)}&oauth=true`;
+                    }, 1500);
+                    return;
+                }
+                
+                console.log('Complete profile found');
+                
+                // Update email_verified if it's false (OAuth users are always verified)
+                if (!profile.email_verified) {
+                    console.log('Updating email_verified to true for OAuth user');
+                    await window.supabase
+                        .from('profiles')
+                        .update({ email_verified: true })
+                        .eq('id', user.id);
+                }
+                
+                // Check firstlogin to determine where to redirect
+                if (!profile.firstlogin) {
+                    console.log('First login incomplete, redirecting to onboarding');
+                    window.location.href = 'onboarding.html';
+                } else {
+                    console.log('User fully onboarded, redirecting to dashboard');
+                    window.location.href = 'dashboard.html';
+                }
+                
+            } catch (error) {
+                console.error('Error in OAuth callback:', error);
+            }
+        }
+        
+        // Listen for OAuth redirect/callback
+        window.addEventListener('load', async function() {
+            const { data: { session } } = await window.supabase.auth.getSession();
+            
+            // Check if we just came back from OAuth
+            const urlParams = new URLSearchParams(window.location.search);
+            const hasOAuthParams = urlParams.has('code') || window.location.hash.includes('access_token');
+            
+            if (session && hasOAuthParams) {
+                console.log('OAuth callback detected');
+                await handleOAuthCallback();
+            }
+        });
+        
         // Google Sign In
         document.getElementById('googleBtn').addEventListener('click', async function() {
             console.log('Google sign in clicked');
@@ -458,7 +530,7 @@
             if (!result.success) {
                 showError(result.error || 'Failed to sign in with Google');
             }
-            // OAuth will redirect automatically
+            // OAuth will redirect to Google, then back to this page
         });
         
         // Facebook Sign In (disabled for now)
@@ -471,7 +543,6 @@
             if (!result.success) {
                 showError(result.error || 'Failed to sign in with Facebook');
             }
-            // OAuth will redirect automatically
         });
         */
     </script>
