@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Signing Out...</title>
+</head>
+<body>
+    <h2>Signing you out...</h2>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="config.js"></script>
+    <script>
+        (async () => {
+            await window.supabase.auth.signOut();
+            window.location.href = 'signup.html';
+        })();
+    </script>
+</body>
+</html>
