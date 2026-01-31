@@ -185,16 +185,31 @@ async function signin(email, password) {
  * @returns {Promise<Object>} OAuth signin result
  */
 async function signInWithOAuth(provider = 'google') {
+  console.log('=== signInWithOAuth called ===');
+  console.log('Provider:', provider);
+  console.log('window.location.origin:', window.location.origin);
+  console.log('Supabase client exists:', !!window.supabase);
+  
   try {
+    const redirectTo = `${window.location.origin}/login.html`;
+    console.log('Redirect URL:', redirectTo);
+    
+    console.log('Calling Supabase signInWithOAuth...');
     const { data, error } = await window.supabase.auth.signInWithOAuth({
       provider: provider,
       options: {
-        redirectTo: `${window.location.origin}/login.html`
+        redirectTo: redirectTo
       }
     });
     
-    if (error) throw error;
+    console.log('Supabase response:', { data, error });
     
+    if (error) {
+      console.error('OAuth error from Supabase:', error);
+      throw error;
+    }
+    
+    console.log('OAuth initiated successfully');
     return { success: true, data };
   } catch (error) {
     console.error('OAuth sign in error:', error);
@@ -384,22 +399,35 @@ async function enforceAuthGates() {
  * @returns {Promise<void>}
  */
 async function redirectIfAuthenticated() {
+  // CRITICAL: Do not redirect if we're processing an OAuth callback
+  const urlParams = new URLSearchParams(window.location.search);
+  const hashParams = new URLSearchParams(window.location.hash.substring(1));
+  const hasOAuthParams = urlParams.has('code') || hashParams.has('access_token') || window.location.hash.includes('access_token');
+  
+  if (hasOAuthParams) {
+    console.log('🛑 redirectIfAuthenticated: OAuth callback detected, skipping redirect');
+    return; // Let the OAuth callback handler deal with routing
+  }
+  
   const authenticated = await isAuthenticated();
   if (authenticated) {
     // Check gates to determine where to redirect
     const emailVerified = await isEmailVerified();
     if (!emailVerified) {
+      console.log('redirectIfAuthenticated: Email not verified, redirecting to verify-email.html');
       window.location.href = 'verify-email.html';
       return;
     }
     
     const onboardingComplete = await isOnboardingComplete();
     if (!onboardingComplete) {
+      console.log('redirectIfAuthenticated: Onboarding incomplete, redirecting to onboarding.html');
       window.location.href = 'onboarding.html';
       return;
     }
     
     // User is fully set up, go to dashboard
+    console.log('redirectIfAuthenticated: All checks passed, redirecting to dashboard.html');
     window.location.href = 'dashboard.html';
   }
 }
@@ -471,3 +499,5 @@ window.MenuQRAuth = {
   // Event listeners
   onAuthStateChange
 };
+
+console.log('✅ MenuQR Auth utilities loaded (Supabase)');

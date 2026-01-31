@@ -245,15 +245,28 @@
         (async function() {
             // Check if we just came back from OAuth
             const urlParams = new URLSearchParams(window.location.search);
-            const hasOAuthParams = urlParams.has('code') || window.location.hash.includes('access_token');
+            const hashParams = new URLSearchParams(window.location.hash.substring(1));
+            const hasCode = urlParams.has('code');
+            const hasAccessToken = hashParams.has('access_token') || window.location.hash.includes('access_token');
+            const hasOAuthParams = hasCode || hasAccessToken;
+            
+            console.log('Immediate redirect check:', {
+                hasCode,
+                hasAccessToken,
+                hasOAuthParams,
+                search: window.location.search,
+                hash: window.location.hash
+            });
             
             // Skip immediate redirect if OAuth callback - let the OAuth handler deal with it
             if (hasOAuthParams) {
-                console.log('OAuth params detected, skipping immediate redirect');
+                console.log('🛑 OAuth params detected, skipping immediate redirect');
                 return;
             }
             
+            console.log('No OAuth params, checking if authenticated...');
             if (await window.MenuQRAuth.isAuthenticated()) {
+                console.log('User is authenticated, calling redirectIfAuthenticated');
                 // User is logged in, redirect based on their state
                 await window.MenuQRAuth.redirectIfAuthenticated();
             }
@@ -554,7 +567,20 @@
                     .eq('id', user.id)
                     .single();
                 
-                console.log('Profile check result:', { profile, error: error?.code });
+                console.log('Profile check result:', { 
+                    profile, 
+                    error: error?.code,
+                    hasProfile: !!profile,
+                    hasBusinessName: !!profile?.business_name,
+                    profileData: profile ? {
+                        email: profile.email,
+                        business_name: profile.business_name,
+                        business_type: profile.business_type,
+                        full_name: profile.full_name,
+                        email_verified: profile.email_verified,
+                        firstlogin: profile.firstlogin
+                    } : null
+                });
                 
                 if (error && error.code !== 'PGRST116') {
                     console.error('Error checking profile:', error);
@@ -565,7 +591,16 @@
                 
                 // Profile doesn't exist OR exists but incomplete (no business_name)
                 if (!profile || !profile.business_name) {
-                    console.log('No profile or incomplete profile - redirecting to signup');
+                    if (!profile) {
+                        console.log('❌ No profile found - new user needs to complete signup');
+                    } else {
+                        console.log('⚠️ Profile exists but missing business_name:', {
+                            has_business_name: !!profile.business_name,
+                            has_business_type: !!profile.business_type,
+                            has_full_name: !!profile.full_name
+                        });
+                        console.log('📝 User needs to complete business information');
+                    }
                     
                     if (alertDiv) {
                         alertDiv.className = 'bg-amber-50 border-l-4 border-amber-500 p-4 rounded-xl mb-6';
@@ -618,7 +653,10 @@
                         `;
                     }
                     
+                    console.log('🎯 OAuth flow: Redirecting to onboarding.html in 1 second');
+                    
                     setTimeout(() => {
+                        console.log('🚀 Executing redirect to onboarding.html');
                         window.location.href = 'onboarding.html';
                     }, 1000);
                 } else {
@@ -639,7 +677,10 @@
                         `;
                     }
                     
+                    console.log('🎯 OAuth flow: Redirecting to dashboard.html in 1 second');
+                    
                     setTimeout(() => {
+                        console.log('🚀 Executing redirect to dashboard.html');
                         window.location.href = 'dashboard.html';
                     }, 1000);
                 }
@@ -666,6 +707,22 @@
         console.log('Checking for OAuth callback on page load...');
         if (isOAuthCallback()) {
             console.log('OAuth callback params detected, waiting for session...');
+            
+            // Show visual indicator that OAuth is being processed
+            const body = document.body;
+            const banner = document.createElement('div');
+            banner.id = 'oauth-processing-banner';
+            banner.style.cssText = 'position: fixed; top: 0; left: 0; right: 0; background: linear-gradient(135deg, #3b82f6, #8b5cf6); color: white; padding: 16px; text-align: center; z-index: 9999; font-weight: bold; box-shadow: 0 4px 12px rgba(0,0,0,0.15);';
+            banner.innerHTML = `
+                <div style="display: flex; align-items: center; justify-content: center; gap: 12px;">
+                    <svg class="animate-spin" style="width: 24px; height: 24px;" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <span>Processing Google Sign In... Please wait.</span>
+                </div>
+            `;
+            body.insertBefore(banner, body.firstChild);
             
             // Try immediately
             setTimeout(async () => {
