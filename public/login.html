@@ -463,6 +463,37 @@
         // Check if OAuth user has a complete profile or needs to sign up
         async function handleOAuthCallback() {
             try {
+                // Show loading state
+                const form = document.querySelector('form');
+                if (form) {
+                    form.style.opacity = '0.5';
+                    form.style.pointerEvents = 'none';
+                }
+                
+                // Show loading message
+                const existingAlert = document.getElementById('alert-message');
+                if (existingAlert) existingAlert.remove();
+                
+                const alertDiv = document.createElement('div');
+                alertDiv.id = 'alert-message';
+                alertDiv.className = 'bg-blue-50 border-l-4 border-blue-500 p-4 rounded-xl mb-6';
+                alertDiv.innerHTML = `
+                    <div class="flex items-start gap-3">
+                        <svg class="animate-spin h-5 w-5 text-blue-500 flex-shrink-0 mt-0.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        <div class="flex-1">
+                            <p class="text-sm font-semibold text-blue-800">Completing sign in...</p>
+                            <p class="text-sm text-blue-700 mt-1">Please wait while we set up your account.</p>
+                        </div>
+                    </div>
+                `;
+                
+                if (form) {
+                    form.parentElement.insertBefore(alertDiv, form);
+                }
+                
                 const { data: { user } } = await window.supabase.auth.getUser();
                 
                 if (!user) return; // No user session
@@ -485,7 +516,22 @@
                 // Profile doesn't exist OR exists but incomplete (no business_name)
                 if (!profile || !profile.business_name) {
                     console.log('No profile or incomplete profile - redirecting to signup');
-                    showError('Please complete your registration to continue');
+                    
+                    // Update message
+                    if (alertDiv) {
+                        alertDiv.className = 'bg-amber-50 border-l-4 border-amber-500 p-4 rounded-xl mb-6';
+                        alertDiv.innerHTML = `
+                            <div class="flex items-start gap-3">
+                                <svg class="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                                </svg>
+                                <div class="flex-1">
+                                    <p class="text-sm font-semibold text-amber-800">Complete Registration</p>
+                                    <p class="text-sm text-amber-700 mt-1">Redirecting to complete your business information...</p>
+                                </div>
+                            </div>
+                        `;
+                    }
                     
                     setTimeout(() => {
                         window.location.href = `signup.html?email=${encodeURIComponent(user.email)}&oauth=true`;
@@ -507,18 +553,73 @@
                 // Check firstlogin to determine where to redirect
                 if (!profile.firstlogin) {
                     console.log('First login incomplete, redirecting to onboarding');
-                    window.location.href = 'onboarding.html';
+                    
+                    // Update message
+                    if (alertDiv) {
+                        alertDiv.className = 'bg-green-50 border-l-4 border-green-500 p-4 rounded-xl mb-6';
+                        alertDiv.innerHTML = `
+                            <div class="flex items-start gap-3">
+                                <svg class="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                </svg>
+                                <div class="flex-1">
+                                    <p class="text-sm font-semibold text-green-800">Welcome back!</p>
+                                    <p class="text-sm text-green-700 mt-1">Taking you to complete your setup...</p>
+                                </div>
+                            </div>
+                        `;
+                    }
+                    
+                    setTimeout(() => {
+                        window.location.href = 'onboarding.html';
+                    }, 1000);
                 } else {
                     console.log('User fully onboarded, redirecting to dashboard');
-                    window.location.href = 'dashboard.html';
+                    
+                    // Update message
+                    if (alertDiv) {
+                        alertDiv.className = 'bg-green-50 border-l-4 border-green-500 p-4 rounded-xl mb-6';
+                        alertDiv.innerHTML = `
+                            <div class="flex items-start gap-3">
+                                <svg class="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                </svg>
+                                <div class="flex-1">
+                                    <p class="text-sm font-semibold text-green-800">Welcome back!</p>
+                                    <p class="text-sm text-green-700 mt-1">Taking you to your dashboard...</p>
+                                </div>
+                            </div>
+                        `;
+                    }
+                    
+                    setTimeout(() => {
+                        window.location.href = 'dashboard.html';
+                    }, 1000);
                 }
                 
             } catch (error) {
                 console.error('Error in OAuth callback:', error);
+                showError('An error occurred during sign in. Please try again.');
             }
         }
         
-        // Listen for OAuth redirect/callback
+        // Listen for OAuth redirect/callback using auth state change
+        window.supabase.auth.onAuthStateChange(async (event, session) => {
+            console.log('Auth state changed:', event);
+            
+            if (event === 'SIGNED_IN' && session) {
+                // Check if we just came back from OAuth
+                const urlParams = new URLSearchParams(window.location.search);
+                const hasOAuthParams = urlParams.has('code') || window.location.hash.includes('access_token');
+                
+                if (hasOAuthParams) {
+                    console.log('OAuth callback detected via auth state change');
+                    await handleOAuthCallback();
+                }
+            }
+        });
+        
+        // Also check on initial load in case we missed the event
         window.addEventListener('load', async function() {
             const { data: { session } } = await window.supabase.auth.getSession();
             
@@ -527,20 +628,33 @@
             const hasOAuthParams = urlParams.has('code') || window.location.hash.includes('access_token');
             
             if (session && hasOAuthParams) {
-                console.log('OAuth callback detected');
+                console.log('OAuth callback detected on page load');
                 await handleOAuthCallback();
             }
         });
         
         // Google Sign In
         document.getElementById('googleBtn').addEventListener('click', async function() {
-            console.log('Google sign in clicked');
-            const result = await window.MenuQRAuth.signInWithOAuth('google');
+            console.log('=== GOOGLE SIGN IN CLICKED ===');
+            console.log('Button element:', this);
+            console.log('MenuQRAuth available:', !!window.MenuQRAuth);
+            console.log('signInWithOAuth available:', !!window.MenuQRAuth?.signInWithOAuth);
             
-            if (!result.success) {
-                showError(result.error || 'Failed to sign in with Google');
+            try {
+                console.log('Calling signInWithOAuth...');
+                const result = await window.MenuQRAuth.signInWithOAuth('google');
+                console.log('OAuth result:', result);
+                
+                if (!result.success) {
+                    console.error('OAuth failed:', result.error);
+                    showError(result.error || 'Failed to sign in with Google');
+                } else {
+                    console.log('OAuth initiated successfully, waiting for redirect...');
+                }
+            } catch (error) {
+                console.error('Exception in OAuth click handler:', error);
+                showError('An error occurred. Please try again.');
             }
-            // OAuth will redirect to Google, then back to this page
         });
         
         // Facebook Sign In (disabled for now)
