@@ -451,7 +451,7 @@
         // ============================================
         
         // Google Sign In
-        document.getElementById('googleSignIn').addEventListener('click', async function() {
+        document.getElementById('googleBtn').addEventListener('click', async function() {
             console.log('Google sign in clicked');
             const result = await window.MenuQRAuth.signInWithOAuth('google');
             
@@ -461,8 +461,10 @@
             // OAuth will redirect automatically
         });
         
-        // Facebook Sign In
-        document.getElementById('facebookSignIn').addEventListener('click', async function() {
+        // Facebook Sign In (disabled for now)
+        // Uncomment when Facebook OAuth is configured
+        /*
+        document.getElementById('facebookBtn').addEventListener('click', async function() {
             console.log('Facebook sign in clicked');
             const result = await window.MenuQRAuth.signInWithOAuth('facebook');
             
@@ -471,6 +473,7 @@
             }
             // OAuth will redirect automatically
         });
+        */
     </script>
 
 </body>
