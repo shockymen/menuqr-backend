@@ -148,7 +148,7 @@
                 </h1>
                 
                 <p class="text-white/80 text-lg mb-12 leading-relaxed">
-                    Your email is verified and your account is ready. Let's set up your business and start creating amazing digital menus!
+                    Your email is verified! Sign in to complete your business setup and start creating amazing digital menus.
                 </p>
                 
                 <!-- Progress Steps - All Complete -->
@@ -180,12 +180,12 @@
                     <div class="flex items-center gap-4">
                         <div class="w-10 h-10 rounded-full gold-shimmer flex items-center justify-center flex-shrink-0 shadow-lg">
                             <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/>
                             </svg>
                         </div>
                         <div>
-                            <div class="text-white font-bold">Complete Setup</div>
-                            <div class="text-amber-400 text-sm">Next: Business details</div>
+                            <div class="text-white font-bold">Sign In</div>
+                            <div class="text-amber-400 text-sm">Next: Login to continue</div>
                         </div>
                     </div>
                 </div>
@@ -193,12 +193,12 @@
                 <!-- Stats Cards -->
                 <div class="grid grid-cols-2 gap-4 mb-12">
                     <div class="glass-effect rounded-2xl p-4">
-                        <div class="text-3xl font-bold text-white mb-1">5 min</div>
-                        <div class="text-white/70 text-sm">Setup time</div>
+                        <div class="text-3xl font-bold text-white mb-1">2 min</div>
+                        <div class="text-white/70 text-sm">Quick setup</div>
                     </div>
                     <div class="glass-effect rounded-2xl p-4">
-                        <div class="text-3xl font-bold text-white mb-1">24/7</div>
-                        <div class="text-white/70 text-sm">Support</div>
+                        <div class="text-3xl font-bold text-white mb-1">Free</div>
+                        <div class="text-white/70 text-sm">30-day trial</div>
                     </div>
                 </div>
                 
@@ -291,12 +291,12 @@
                         <div class="flex items-center gap-4">
                             <div class="w-12 h-12 rounded-full gold-shimmer flex items-center justify-center flex-shrink-0">
                                 <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/>
                                 </svg>
                             </div>
                             <div class="flex-1">
-                                <div class="font-bold text-gray-900 text-lg">Complete Setup</div>
-                                <div class="text-sm text-amber-600 font-bold">Next: Business details →</div>
+                                <div class="font-bold text-gray-900 text-lg">Sign In</div>
+                                <div class="text-sm text-amber-600 font-bold">Next: Login to continue →</div>
                             </div>
                         </div>
                     </div>
@@ -305,7 +305,7 @@
                 <!-- Redirect Message -->
                 <div class="text-center mb-6 fade-in fade-in-delay-3">
                     <p class="text-gray-600 mb-3">
-                        Redirecting to setup in <span id="countdown" class="font-bold text-green-600 text-xl">3</span> seconds...
+                        Redirecting to sign in in <span id="countdown" class="font-bold text-green-600 text-xl">3</span> seconds...
                     </p>
                     
                     <!-- Progress Bar -->
@@ -316,10 +316,10 @@
                 
                 <!-- Manual Continue Button -->
                 <button 
-                    onclick="continueToOnboarding()" 
+                    onclick="continueToLogin()" 
                     class="w-full gold-shimmer text-white font-bold py-4 rounded-xl transition-all duration-300 shadow-xl hover:shadow-2xl hover:scale-[1.02] uppercase tracking-wider mb-6 fade-in fade-in-delay-3"
                 >
-                    Continue to Setup →
+                    Continue to Sign In →
                 </button>
                 
                 <!-- Help Text -->
@@ -394,7 +394,26 @@
                 
                 console.log('Email confirmed in Supabase auth ✓');
                 
-                // Update profiles table: email_verified = true (Gate 1)
+                // Check if profile is already verified
+                const { data: profile } = await window.supabase
+                    .from('profiles')
+                    .select('email_verified')
+                    .eq('id', session.user.id)
+                    .single();
+                
+                if (profile && profile.email_verified) {
+                    console.log('Email already verified - redirecting to login');
+                    
+                    // User already verified - send them to login
+                    // Login page will route them to onboarding or dashboard based on status
+                    showInfo('You\'re already verified! Please sign in to continue.');
+                    setTimeout(() => {
+                        window.location.href = 'login.html';
+                    }, 2000);
+                    return;
+                }
+                
+                // First time verification - update profile
                 const result = await window.MenuQRAuth.markEmailVerified(session.user.id);
                 
                 if (result.success) {
@@ -404,7 +423,7 @@
                     // Continue anyway - Supabase email is verified
                 }
                 
-                // Start countdown and redirect
+                // Start countdown and redirect to onboarding
                 startCountdown();
                 
                 // Unsubscribe from auth listener since we're done
@@ -435,32 +454,63 @@
                 
                 if (seconds <= 0) {
                     clearInterval(interval);
-                    continueToOnboarding();
+                    continueToLogin();
                 }
             }, 1000);
         }
         
-        function continueToOnboarding() {
-            console.log('Redirecting to onboarding...');
-            window.location.href = 'onboarding.html';
+        function continueToLogin() {
+            console.log('Redirecting to login...');
+            window.location.href = 'login.html';
         }
         
         // ============================================
-        // ERROR HANDLING
+        // NOTIFICATIONS
         // ============================================
         
         function showError(message) {
+            showNotification(message, 'error');
+        }
+        
+        function showInfo(message) {
+            showNotification(message, 'info');
+        }
+        
+        function showNotification(message, type = 'info') {
+            // Remove existing notifications
+            const existing = document.getElementById('notification');
+            if (existing) existing.remove();
+            
+            let bgColor, textColor, iconColor, icon;
+            
+            if (type === 'error') {
+                bgColor = 'bg-red-50 border-red-500';
+                textColor = 'text-red-800';
+                iconColor = 'text-red-500';
+                icon = '<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>';
+            } else {
+                bgColor = 'bg-blue-50 border-blue-500';
+                textColor = 'text-blue-800';
+                iconColor = 'text-blue-500';
+                icon = '<path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>';
+            }
+            
             const notification = document.createElement('div');
-            notification.className = 'fixed top-4 right-4 bg-red-50 border-l-4 border-red-500 rounded-lg p-4 shadow-lg max-w-md z-50';
+            notification.id = 'notification';
+            notification.className = `fixed top-4 right-4 ${bgColor} border-l-4 rounded-lg p-4 shadow-lg max-w-md z-50`;
             notification.innerHTML = `
                 <div class="flex items-start gap-3">
-                    <svg class="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                    <svg class="w-5 h-5 ${iconColor} flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                        ${icon}
                     </svg>
-                    <p class="text-sm text-red-800 font-medium">${message}</p>
+                    <p class="text-sm ${textColor} font-medium">${message}</p>
                 </div>
             `;
+            
             document.body.appendChild(notification);
+            
+            // Auto remove after 5 seconds
+            setTimeout(() => notification.remove(), 5000);
         }
     </script>
 
