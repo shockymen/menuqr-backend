@@ -347,23 +347,34 @@
         // ============================================
         
         // Show loading state initially
-        console.log('Email verification handler loaded');
+        console.log('🔧 Email verification handler loaded');
         
         // Listen for auth state changes (Supabase will fire this after processing the token)
         const { data: authListener } = window.supabase.auth.onAuthStateChange(async (event, session) => {
-            console.log('Auth state change:', event, session);
+            console.log('🔔 Auth state change event:', event);
+            console.log('📦 Session data:', session?.user?.id);
             
             // Only process on SIGNED_IN or TOKEN_REFRESHED events
             if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED') {
+                console.log('✅ Event matches, calling handleVerification...');
                 await handleVerification(session);
+            } else {
+                console.log('⏭️ Event skipped:', event);
             }
         });
         
+        console.log('⏱️ Setting up immediate session check in 500ms...');
+        
         // Also check immediately in case user is already signed in
         setTimeout(async () => {
+            console.log('🔍 Immediate session check...');
             const { data: { session } } = await window.supabase.auth.getSession();
+            console.log('📦 Immediate session:', session?.user?.id);
             if (session) {
+                console.log('✅ Session exists, calling handleVerification...');
                 await handleVerification(session);
+            } else {
+                console.log('❌ No session found in immediate check');
             }
         }, 500);
         
@@ -418,15 +429,21 @@
                 // First time verification - update profile
                 const result = await window.MenuQRAuth.markEmailVerified(session.user.id);
                 
+                console.log('📝 markEmailVerified result:', result);
+                
                 if (result.success) {
-                    console.log('Profile updated: email_verified = true ✓');
+                    console.log('✅ Profile updated: email_verified = true');
                 } else {
-                    console.error('Failed to update profile:', result.error);
+                    console.error('❌ Failed to update profile:', result.error);
                     // Continue anyway - Supabase email is verified
                 }
                 
-                // Start countdown and redirect to onboarding
+                console.log('🕐 About to call startCountdown()...');
+                
+                // Start countdown and redirect to login
                 startCountdown();
+                
+                console.log('✅ startCountdown() called successfully');
                 
                 // Unsubscribe from auth listener since we're done
                 if (authListener && authListener.subscription) {
@@ -447,14 +464,26 @@
         // ============================================
         
         function startCountdown() {
+            console.log('🕐 Starting countdown...');
             let seconds = 3;
             const countdownEl = document.getElementById('countdown');
             
+            if (!countdownEl) {
+                console.error('❌ Countdown element not found!');
+                // Fallback - just redirect after 3 seconds
+                setTimeout(() => continueToLogin(), 3000);
+                return;
+            }
+            
+            console.log('✅ Countdown element found:', countdownEl);
+            
             const interval = setInterval(() => {
                 seconds--;
+                console.log(`⏱️ Countdown: ${seconds}`);
                 countdownEl.textContent = seconds;
                 
                 if (seconds <= 0) {
+                    console.log('✅ Countdown complete, redirecting...');
                     clearInterval(interval);
                     continueToLogin();
                 }
