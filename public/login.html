@@ -406,7 +406,7 @@
                     setTimeout(() => {
                         window.location.href = `verify-email.html?email=${encodeURIComponent(email)}`;
                     }, 1000);
-                } else if (!user.firstLogin) {
+                } else if (!user.firstlogin) {
                     // Gate 1 PASSED, Gate 2 FAILED: Onboarding not complete
                     console.log('Onboarding not complete, redirecting to onboarding');
                     setTimeout(() => {

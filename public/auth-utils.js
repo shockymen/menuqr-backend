@@ -50,7 +50,7 @@ async function getCurrentUser() {
         id: session.user.id,
         email: session.user.email,
         email_verified: false,
-        firstLogin: false,
+        firstlogin: false,
         profile: null
       };
     }
@@ -93,7 +93,7 @@ async function isEmailVerified() {
 async function isOnboardingComplete() {
   try {
     const user = await getCurrentUser();
-    return user?.firstLogin === true;
+    return user?.firstlogin === true;
   } catch (error) {
     console.error('Error checking onboarding status:', error);
     return false;
@@ -321,7 +321,7 @@ async function markOnboardingComplete(userId) {
     const { data, error } = await window.supabase
       .from('profiles')
       .update({
-        firstLogin: true,
+        firstlogin: true,
         onboarding_completed_at: new Date().toISOString()
       })
       .eq('id', userId)
@@ -343,7 +343,7 @@ async function markOnboardingComplete(userId) {
 
 /**
  * Redirect user based on their authentication state
- * Enforces the two-gate system: email_verified + firstLogin
+ * Enforces the two-gate system: email_verified + firstlogin
  * Call this on protected pages
  * @returns {Promise<boolean>} True if user can access page, false if redirected
  */
