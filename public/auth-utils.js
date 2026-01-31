@@ -189,7 +189,7 @@ async function signInWithOAuth(provider = 'google') {
     const { data, error } = await window.supabase.auth.signInWithOAuth({
       provider: provider,
       options: {
-        redirectTo: `${window.location.origin}/dashboard.html`
+        redirectTo: `${window.location.origin}/login.html`
       }
     });
     

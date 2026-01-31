@@ -241,8 +241,18 @@
     
     <!-- Check if already authenticated -->
     <script>
-        // Redirect if user is already logged in
+        // Redirect if user is already logged in (BUT NOT if coming from OAuth)
         (async function() {
+            // Check if we just came back from OAuth
+            const urlParams = new URLSearchParams(window.location.search);
+            const hasOAuthParams = urlParams.has('code') || window.location.hash.includes('access_token');
+            
+            // Skip immediate redirect if OAuth callback - let the OAuth handler deal with it
+            if (hasOAuthParams) {
+                console.log('OAuth params detected, skipping immediate redirect');
+                return;
+            }
+            
             if (await window.MenuQRAuth.isAuthenticated()) {
                 // User is logged in, redirect based on their state
                 await window.MenuQRAuth.redirectIfAuthenticated();
