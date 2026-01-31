@@ -230,8 +230,25 @@
         
     </div>
 
+    <!-- Supabase JS Library (Load FIRST) -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
     <!-- Configuration -->
     <script src="config.js"></script>
+    
+    <!-- Auth Utilities -->
+    <script src="auth-utils.js"></script>
+    
+    <!-- Check if already authenticated -->
+    <script>
+        // Redirect if user is already logged in
+        (async function() {
+            if (await window.MenuQRAuth.isAuthenticated()) {
+                // User is logged in, redirect based on their state
+                await window.MenuQRAuth.redirectIfAuthenticated();
+            }
+        })();
+    </script>
     
     <!-- Main Script -->
     <script>
@@ -239,10 +256,7 @@
         // CONFIGURATION
         // ============================================
         
-        // Load from external config file
-        const API_BASE_URL = window.MENUQR_CONFIG.API_BASE_URL;
-        const ENDPOINTS = window.MENUQR_CONFIG.ENDPOINTS;
-        const STORAGE_KEYS = window.MENUQR_CONFIG.STORAGE_KEYS;
+        // Load routes from config (for redirects)
         const ROUTES = window.MENUQR_CONFIG.ROUTES;
         
         // ============================================
@@ -351,28 +365,6 @@
         }
         
         // ============================================
-        // API CALL
-        // ============================================
-        
-        async function loginUser(email, password) {
-            const response = await fetch(`${API_BASE_URL}${ENDPOINTS.SIGNIN}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ email, password })
-            });
-            
-            const data = await response.json();
-            
-            if (!response.ok) {
-                throw new Error(data.error?.message || 'Login failed');
-            }
-            
-            return data;
-        }
-        
-        // ============================================
         // FORM SUBMIT HANDLER
         // ============================================
         
@@ -391,55 +383,68 @@
                 // Get form values
                 const email = document.getElementById('email').value;
                 const password = document.getElementById('password').value;
-                const remember = document.getElementById('remember').checked;
                 
-                // Call API
-                const result = await loginUser(email, password);
+                // Call Supabase Auth signin
+                const result = await window.MenuQRAuth.signin(email, password);
                 
-                console.log('Login successful:', result);
-                
-                // Store authentication tokens
-                if (result.data?.access_token) {
-                    // Store access token
-                    localStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, result.data.access_token);
-                    
-                    // Store refresh token if remember me is checked
-                    if (remember && result.data.refresh_token) {
-                        localStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, result.data.refresh_token);
-                    }
-                    
-                    // Store user data
-                    if (result.data.user) {
-                        localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(result.data.user));
-                    }
+                if (!result.success) {
+                    throw new Error(result.error);
                 }
                 
-                // Show success message
-                showSuccess('Login successful! Redirecting to dashboard...');
+                console.log('Sign in successful:', result);
                 
-                // Redirect to dashboard after 1.5 seconds
-                setTimeout(() => {
-                    window.location.href = ROUTES.DASHBOARD;
-                }, 1500);
+                // Show success message
+                showSuccess('Welcome back! Redirecting...');
+                
+                // Get user data to determine where to redirect
+                const user = result.user;
+                
+                // Implement two-gate system routing
+                if (!user.email_verified) {
+                    // Gate 1 FAILED: Email not verified
+                    console.log('Email not verified, redirecting to verify-email page');
+                    setTimeout(() => {
+                        window.location.href = `verify-email.html?email=${encodeURIComponent(email)}`;
+                    }, 1000);
+                } else if (!user.firstLogin) {
+                    // Gate 1 PASSED, Gate 2 FAILED: Onboarding not complete
+                    console.log('Onboarding not complete, redirecting to onboarding');
+                    setTimeout(() => {
+                        window.location.href = 'onboarding.html';
+                    }, 1000);
+                } else {
+                    // All gates PASSED: Go to dashboard
+                    console.log('All gates passed, redirecting to dashboard');
+                    setTimeout(() => {
+                        window.location.href = 'dashboard.html';
+                    }, 1000);
+                }
                 
             } catch (error) {
                 console.error('Login error:', error);
-                showError(error.message || 'Invalid email or password. Please try again.');
+                
+                // Handle specific error types
+                let errorMessage = error.message || 'Something went wrong. Please try again.';
+                
+                // Invalid credentials
+                if (errorMessage.includes('Invalid login credentials') || errorMessage.includes('Invalid')) {
+                    errorMessage = 'Invalid email or password. Please check your credentials and try again.';
+                }
+                
+                // Email not confirmed (Supabase error)
+                if (errorMessage.includes('Email not confirmed')) {
+                    errorMessage = 'Please verify your email before signing in. Check your inbox for the verification link.';
+                }
+                
+                // User not found
+                if (errorMessage.includes('User not found')) {
+                    errorMessage = 'No account found with this email. Please <a href="signup.html" class="underline font-bold">sign up</a> first.';
+                }
+                
+                showError(errorMessage);
                 setLoading(false);
             }
         });
-        
-        // ============================================
-        // CHECK IF ALREADY LOGGED IN
-        // ============================================
-        
-        // Check if user is already logged in
-        const existingToken = localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN);
-        if (existingToken) {
-            // User already has a token, redirect to dashboard
-            console.log('User already logged in, redirecting...');
-            window.location.href = ROUTES.DASHBOARD;
-        }
     </script>
 
 </body>
